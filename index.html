@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM Réseaux — ENEAM</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e1a;--surf:#111827;--surf2:#1a2235;--acc:#00e5ff;--acc2:#7c3aed;--grn:#10b981;--red:#ef4444;--amb:#f59e0b;--txt:#e2e8f0;--mut:#64748b;--brd:#1e293b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.03)1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03)1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.wrap{max-width:860px;margin:0 auto;padding:1.5rem 1.2rem 5rem;position:relative;z-index:1}
+header{text-align:center;padding:2.5rem 0 2rem}
+.chip{display:inline-block;font-family:'Space Mono',monospace;font-size:.65rem;color:var(--acc);letter-spacing:.2em;text-transform:uppercase;border:1px solid rgba(0,229,255,.3);padding:.2rem .7rem;border-radius:2px;margin-bottom:1rem;background:rgba(0,229,255,.05)}
+h1{font-size:clamp(1.8rem,5vw,3rem);font-weight:800;letter-spacing:-.02em;background:linear-gradient(135deg,#fff 40%,var(--acc));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.6rem}
+.sub{color:var(--mut);font-size:.85rem;font-family:'Space Mono',monospace}
+.screen{display:none}.screen.active{display:block}
+
+/* ── ACCUEIL / THÈMES ── */
+.intro-box{margin-bottom:1.8rem;padding:1.2rem 1.5rem;background:var(--surf);border:1px solid var(--brd);border-radius:12px;font-size:.88rem;color:var(--mut);line-height:1.7}
+.intro-box b{color:var(--acc)}
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.9rem;margin-bottom:1.8rem}
+.tc{background:var(--surf);border:1.5px solid var(--brd);border-radius:12px;padding:1.2rem 1.4rem;cursor:pointer;transition:all .2s ease;position:relative;overflow:hidden}
+.tc::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s ease}
+.tc:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.tc:hover::before{opacity:1}
+.tc .ico{font-size:2rem;margin-bottom:.6rem;display:block}
+.tc .tname{font-size:.95rem;font-weight:700;margin-bottom:.25rem}
+.tc .tcount{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--mut)}
+.tc .tbar{height:3px;border-radius:99px;margin-top:.7rem;opacity:.5}
+.btn-all{width:100%;padding:1rem;background:linear-gradient(135deg,var(--acc2),#6d28d9);border:none;border-radius:10px;color:#fff;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s ease;letter-spacing:.03em}
+.btn-all:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,.4)}
+
+/* ── QCM ── */
+.qcm-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.4rem;flex-wrap:wrap}
+.theme-badge{display:inline-flex;align-items:center;gap:.4rem;font-family:'Space Mono',monospace;font-size:.72rem;padding:.3rem .8rem;border-radius:99px;border:1px solid;font-weight:700}
+.pbar-wrap{background:var(--surf2);border-radius:99px;height:5px;flex:1;min-width:120px;overflow:hidden;border:1px solid var(--brd)}
+.pbar{height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc));border-radius:99px;transition:width .4s cubic-bezier(.4,0,.2,1);width:0%}
+.plabel{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:.68rem;color:var(--mut);margin-bottom:1.2rem}
+.score-row{display:flex;gap:.75rem;margin-bottom:1.4rem}
+.sbox{flex:1;background:var(--surf);border:1px solid var(--brd);border-radius:10px;padding:.6rem .8rem;text-align:center}
+.sbox .n{font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700}
+.sbox .l{font-size:.66rem;color:var(--mut);margin-top:1px;text-transform:uppercase;letter-spacing:.08em}
+.sbox.c .n{color:var(--grn)}.sbox.w .n{color:var(--red)}.sbox.t .n{color:var(--acc)}
+.qcard{background:var(--surf);border:1px solid var(--brd);border-radius:14px;padding:1.8rem;margin-bottom:1.4rem;animation:slideIn .3s ease;position:relative;overflow:hidden}
+.qcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.qn{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--acc);letter-spacing:.1em;margin-bottom:.75rem;text-transform:uppercase}
+.qt{font-size:1rem;font-weight:600;line-height:1.6;margin-bottom:1.1rem;color:#f1f5f9}
+.qimg{margin-bottom:1.2rem;border-radius:10px;overflow:hidden;border:1px solid var(--brd);background:#0d1424;display:flex;justify-content:center;align-items:center;padding:.5rem}
+.qimg svg{max-width:100%;height:auto;display:block}
+.opts{display:flex;flex-direction:column;gap:.55rem}
+.ob{background:var(--surf2);border:1px solid var(--brd);border-radius:9px;padding:.8rem 1rem;cursor:pointer;text-align:left;font-family:'Syne',sans-serif;font-size:.9rem;color:var(--txt);transition:all .18s ease;display:flex;align-items:center;gap:.7rem}
+.ob:hover:not(:disabled){border-color:var(--acc);background:rgba(0,229,255,.06);transform:translateX(4px)}
+.ol{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--acc);background:rgba(0,229,255,.1);border-radius:4px;padding:.1rem .35rem;min-width:24px;text-align:center;flex-shrink:0}
+.ob.correct{border-color:var(--grn);background:rgba(16,185,129,.12);color:#6ee7b7}
+.ob.correct .ol{background:rgba(16,185,129,.2);color:var(--grn)}
+.ob.wrong{border-color:var(--red);background:rgba(239,68,68,.1);color:#fca5a5}
+.ob.wrong .ol{background:rgba(239,68,68,.15);color:var(--red)}
+.ob:disabled{cursor:default}
+.expl{display:none;margin-top:1.1rem;padding:.9rem 1.1rem;background:rgba(0,229,255,.05);border-left:3px solid var(--acc);border-radius:0 8px 8px 0;font-size:.84rem;color:#94a3b8;line-height:1.65;font-family:'Space Mono',monospace}
+.expl.show{display:block;animation:fadeUp .3s ease}
+.nav-row{display:flex;gap:.8rem;margin-top:1.2rem}
+.btn{padding:.75rem 1.4rem;border-radius:8px;border:none;font-family:'Syne',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:all .18s ease}
+.btn-p{background:linear-gradient(135deg,var(--acc2),#6d28d9);color:#fff;flex:1}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(124,58,237,.4)}
+.btn-s{background:var(--surf2);color:var(--mut);border:1px solid var(--brd)}
+.btn-s:hover{color:var(--txt);border-color:var(--mut)}
+
+/* ── RÉSULTATS ── */
+#s-result{animation:fadeUp .4s ease}
+.res-hero{text-align:center;padding:2rem;background:var(--surf);border:1px solid var(--brd);border-radius:16px;margin-bottom:1.5rem}
+.res-score{font-family:'Space Mono',monospace;font-size:4.5rem;font-weight:700;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin:1rem 0 .5rem}
+.res-mention{font-size:1.3rem;font-weight:700;margin-bottom:.4rem}
+.res-pct{font-family:'Space Mono',monospace;font-size:.8rem;color:var(--mut)}
+.section-title{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--acc);letter-spacing:.15em;text-transform:uppercase;margin-bottom:1rem;margin-top:1.5rem}
+.theme-scores{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin-bottom:1.5rem}
+.ts-card{background:var(--surf);border:1px solid var(--brd);border-radius:10px;padding:1rem 1.2rem}
+.ts-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem}
+.ts-ico{font-size:1.3rem}
+.ts-name{font-size:.85rem;font-weight:700;color:var(--txt)}
+.ts-bar-bg{background:var(--surf2);border-radius:99px;height:5px;margin-bottom:.4rem;overflow:hidden}
+.ts-bar{height:100%;border-radius:99px;transition:width .6s ease}
+.ts-nums{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--mut)}
+.ts-pct{font-family:'Space Mono',monospace;font-size:1.1rem;font-weight:700;float:right;margin-top:-1.6rem}
+.res-actions{display:flex;gap:.8rem;flex-wrap:wrap}
+.btn-home{flex:1;padding:.85rem;background:var(--surf2);border:1px solid var(--brd);border-radius:8px;color:var(--txt);font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s ease}
+.btn-home:hover{border-color:var(--acc);color:var(--acc)}
+.btn-retry{flex:1;padding:.85rem;background:linear-gradient(135deg,var(--acc),#0099cc);border:none;border-radius:8px;color:#0a0e1a;font-family:'Syne',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;transition:all .2s ease}
+.btn-retry:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,229,255,.3)}
+
+/* ── FOOTER ── */
+footer{margin-top:3rem;border-top:1px solid var(--brd);padding:1.6rem 1.2rem;position:relative;z-index:1}
+footer::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:100px;height:1px;background:linear-gradient(90deg,var(--acc2),var(--acc))}
+.fi{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap}
+.fb{display:flex;align-items:center;gap:.75rem}
+.fini{width:40px;height:40px;background:linear-gradient(135deg,var(--acc2),var(--acc));border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;color:#fff;flex-shrink:0}
+.fn{font-weight:700;font-size:.9rem}.fs{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--mut);margin-top:1px}
+.fdiv{width:1px;height:28px;background:var(--brd)}
+.fwa{display:flex;align-items:center;gap:.5rem;font-family:'Space Mono',monospace;font-size:.75rem;color:#25d366;text-decoration:none;background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.2);padding:.4rem .9rem;border-radius:99px;transition:all .2s ease}
+.fwa:hover{background:rgba(37,211,102,.15);border-color:rgba(37,211,102,.4);transform:translateY(-1px)}
+@media(max-width:600px){.score-row{gap:.4rem}.sbox .n{font-size:1rem}.qcard{padding:1.2rem}.theme-grid{grid-template-columns:1fr 1fr}.res-actions{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="chip">// ENEAM · IG2 A&amp;B</div>
+  <h1>Réseaux Informatiques</h1>
+  <p class="sub">QCM interactif par thèmes · avec illustrations</p>
+</header>
+
+<!-- ══ ÉCRAN ACCUEIL ══ -->
+<div id="s-home" class="screen active">
+  <div class="intro-box">
+    Choisissez un <b>thème</b> pour réviser un chapitre précis, ou lancez le <b>QCM complet</b> pour vous tester sur l'ensemble du programme.<br>
+    À la fin, votre score <b>par thème</b> et <b>global</b> sera affiché.
+  </div>
+  <div class="theme-grid" id="theme-grid"></div>
+  <button class="btn-all" onclick="startAll()">🎯 &nbsp; Lancer le QCM complet (toutes questions)</button>
+</div>
+
+<!-- ══ ÉCRAN QCM ══ -->
+<div id="s-quiz" class="screen">
+  <div class="qcm-header">
+    <span class="theme-badge" id="theme-badge">Thème</span>
+    <div class="pbar-wrap"><div class="pbar" id="pbar"></div></div>
+    <span style="font-family:'Space Mono',monospace;font-size:.72rem;color:var(--mut)" id="ptext">1/10</span>
+  </div>
+  <div class="plabel"><span id="plabel-l">Question 1</span><span id="plabel-r">0%</span></div>
+  <div class="score-row">
+    <div class="sbox c"><div class="n" id="sc">0</div><div class="l">✓ Correct</div></div>
+    <div class="sbox w"><div class="n" id="sw">0</div><div class="l">✗ Faux</div></div>
+    <div class="sbox t"><div class="n" id="sr">0</div><div class="l">Restantes</div></div>
+  </div>
+  <div class="qcard" id="qcard">
+    <div class="qn" id="qnum">Q 01</div>
+    <div class="qt" id="qtext"></div>
+    <div class="qimg" id="qimg" style="display:none"></div>
+    <div class="opts" id="opts"></div>
+    <div class="expl" id="expl"></div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-s" id="btn-prev" onclick="prevQ()">&#8592; Préc.</button>
+    <button class="btn btn-p" id="btn-next" onclick="nextQ()">Suivante &#8594;</button>
+  </div>
+</div>
+
+<!-- ══ ÉCRAN RÉSULTATS ══ -->
+<div id="s-result" class="screen">
+  <div class="res-hero">
+    <div class="chip" id="res-chip">Résultats</div>
+    <div class="res-score" id="res-score">—</div>
+    <div class="res-mention" id="res-mention"></div>
+    <div class="res-pct" id="res-pct"></div>
+  </div>
+  <div class="section-title">// Score par thème</div>
+  <div class="theme-scores" id="theme-scores"></div>
+  <div class="res-actions">
+    <button class="btn-home" onclick="goHome()">&#8592; Choisir un thème</button>
+    <button class="btn-retry" id="btn-retry" onclick="retryQuiz()">&#8635; Recommencer</button>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<footer>
+  <div class="fi">
+    <div class="fb">
+      <span class="fini">M</span>
+      <div><div class="fn">Miracle L.</div><div class="fs">Créateur du QCM</div></div>
+    </div>
+    <div class="fdiv"></div>
+    <a class="fwa" href="https://wa.me/2290190821282" target="_blank" rel="noopener">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      +229 01 90 82 12 82
+    </a>
+  </div>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════
+// SVG ILLUSTRATIONS
+// ══════════════════════════════════════════════
+const SVG = {
+networkTypes:`<svg viewBox="0 0 520 195" width="520" height="195" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="520" height="195" fill="#0d1424"/>
+<rect x="8" y="8" width="504" height="179" rx="12" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6,3"/>
+<text x="18" y="26" fill="#ef4444" font-size="11" font-weight="bold">WAN — Mondial (Internet)</text>
+<rect x="30" y="34" width="310" height="145" rx="10" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/>
+<text x="40" y="50" fill="#f59e0b" font-size="11" font-weight="bold">MAN — Ville / Métropole</text>
+<rect x="52" y="60" width="185" height="110" rx="8" fill="none" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,3"/>
+<text x="62" y="76" fill="#00e5ff" font-size="11" font-weight="bold">LAN — École / Entreprise</text>
+<rect x="70" y="86" width="110" height="72" rx="6" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="3,2"/>
+<text x="78" y="101" fill="#a78bfa" font-size="10">PAN</text>
+<text x="74" y="142" font-size="20">💻</text><text x="104" y="142" font-size="20">📱</text><text x="134" y="142" font-size="20">🖨️</text>
+<text x="390" y="100" font-size="42">🌐</text>
+<text x="382" y="130" fill="#ef4444" font-size="10">Internet</text>
+</svg>`,
+
+star:`<svg viewBox="0 0 420 210" width="420" height="210" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="420" height="210" fill="#0d1424"/>
+<rect x="168" y="88" width="84" height="44" rx="8" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+<text x="210" y="107" text-anchor="middle" fill="#00e5ff" font-size="11" font-weight="bold">SWITCH</text>
+<text x="210" y="122" text-anchor="middle" fill="#64748b" font-size="9">couche 2</text>
+<line x1="210" y1="88" x2="210" y2="34" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+<line x1="168" y1="110" x2="58" y2="72" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+<line x1="168" y1="110" x2="52" y2="158" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+<line x1="252" y1="110" x2="362" y2="72" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+<line x1="252" y1="110" x2="362" y2="158" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+<line x1="210" y1="132" x2="210" y2="190" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+<text x="186" y="30" font-size="22">🖥️</text><text x="28" y="70" font-size="22">🖥️</text><text x="24" y="160" font-size="22">🖥️</text>
+<text x="340" y="70" font-size="22">🖥️</text><text x="340" y="160" font-size="22">🖥️</text><text x="186" y="208" font-size="22">🖨️</text>
+<text x="210" y="200" text-anchor="middle" fill="#10b981" font-size="9">★ Étoile — nœud central = switch</text>
+</svg>`,
+
+bus:`<svg viewBox="0 0 460 120" width="460" height="120" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="460" height="120" fill="#0d1424"/>
+<line x1="20" y1="78" x2="440" y2="78" stroke="#f59e0b" stroke-width="3"/>
+<circle cx="20" cy="78" r="5" fill="#f59e0b"/><circle cx="440" cy="78" r="5" fill="#f59e0b"/>
+<text x="12" y="98" fill="#f59e0b" font-size="9">Term.</text><text x="420" y="98" fill="#f59e0b" font-size="9">Term.</text>
+<line x1="90" y1="78" x2="90" y2="44" stroke="#64748b" stroke-width="1.5"/><text x="68" y="40" font-size="22">🖥️</text>
+<line x1="180" y1="78" x2="180" y2="44" stroke="#64748b" stroke-width="1.5"/><text x="158" y="40" font-size="22">🖥️</text>
+<line x1="270" y1="78" x2="270" y2="44" stroke="#64748b" stroke-width="1.5"/><text x="248" y="40" font-size="22">🖥️</text>
+<line x1="360" y1="78" x2="360" y2="44" stroke="#64748b" stroke-width="1.5"/><text x="338" y="40" font-size="22">🖥️</text>
+<text x="230" y="114" fill="#ef4444" font-size="10" text-anchor="middle">⚠ Rupture du câble = tout le réseau tombe !</text>
+</svg>`,
+
+hubVsSwitch:`<svg viewBox="0 0 480 175" width="480" height="175" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="175" fill="#0d1424"/>
+<text x="92" y="18" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="bold">HUB — Diffuse partout</text>
+<rect x="56" y="26" width="72" height="32" rx="6" fill="#1a2235" stroke="#f59e0b" stroke-width="2"/>
+<text x="92" y="47" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="bold">HUB</text>
+<line x1="92" y1="58" x2="32" y2="86" stroke="#ef4444" stroke-width="2"/><text x="12" y="96" font-size="18">🖥️</text>
+<line x1="92" y1="58" x2="92" y2="86" stroke="#ef4444" stroke-width="2"/><text x="76" y="100" font-size="18">🖥️</text>
+<line x1="92" y1="58" x2="152" y2="86" stroke="#ef4444" stroke-width="2"/><text x="140" y="96" font-size="18">🖥️</text>
+<text x="92" y="122" text-anchor="middle" fill="#ef4444" font-size="9">→ envoi à TOUS</text>
+<line x1="240" y1="8" x2="240" y2="170" stroke="#1e293b" stroke-width="2"/>
+<text x="360" y="18" text-anchor="middle" fill="#00e5ff" font-size="12" font-weight="bold">SWITCH — Ciblé</text>
+<rect x="324" y="26" width="72" height="32" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+<text x="360" y="47" text-anchor="middle" fill="#00e5ff" font-size="12" font-weight="bold">SWITCH</text>
+<line x1="360" y1="58" x2="300" y2="86" stroke="#374151" stroke-width="1.5" stroke-dasharray="3,2"/><text x="280" y="96" font-size="18">🖥️</text>
+<line x1="360" y1="58" x2="360" y2="86" stroke="#10b981" stroke-width="3"/><text x="344" y="100" font-size="18">🖥️</text>
+<line x1="360" y1="58" x2="420" y2="86" stroke="#374151" stroke-width="1.5" stroke-dasharray="3,2"/><text x="408" y="96" font-size="18">🖥️</text>
+<text x="360" y="122" text-anchor="middle" fill="#10b981" font-size="9">→ envoi au SEUL destinataire</text>
+</svg>`,
+
+router:`<svg viewBox="0 0 480 150" width="480" height="150" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="150" fill="#0d1424"/>
+<rect x="10" y="28" width="140" height="96" rx="8" fill="none" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+<text x="80" y="46" text-anchor="middle" fill="#00e5ff" font-size="10">Réseau 1 — 192.168.1.0/24</text>
+<text x="18" y="104" font-size="18">🖥️</text><text x="55" y="104" font-size="18">🖥️</text><text x="92" y="104" font-size="18">🖥️</text>
+<rect x="190" y="54" width="100" height="42" rx="10" fill="#1a2235" stroke="#a78bfa" stroke-width="2"/>
+<text x="240" y="73" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="bold">ROUTEUR</text>
+<text x="240" y="88" text-anchor="middle" fill="#64748b" font-size="9">couche 3 · IP</text>
+<rect x="330" y="28" width="140" height="96" rx="8" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,2"/>
+<text x="400" y="46" text-anchor="middle" fill="#10b981" font-size="10">Réseau 2 — 10.0.0.0/24</text>
+<text x="338" y="104" font-size="18">🖥️</text><text x="375" y="104" font-size="18">🖥️</text><text x="412" y="104" font-size="18">🖥️</text>
+<line x1="150" y1="75" x2="190" y2="75" stroke="#a78bfa" stroke-width="2"/>
+<line x1="290" y1="75" x2="330" y2="75" stroke="#a78bfa" stroke-width="2"/>
+<text x="240" y="144" text-anchor="middle" fill="#a78bfa" font-size="9">Le routeur possède une IP dans CHAQUE réseau</text>
+</svg>`,
+
+ipv4:`<svg viewBox="0 0 480 165" width="480" height="165" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="165" fill="#0d1424"/>
+<text x="240" y="20" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="bold">Structure IPv4 — 32 bits / 4 octets</text>
+<rect x="18" y="30" width="100" height="38" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+<text x="68" y="46" text-anchor="middle" fill="#00e5ff" font-size="15" font-weight="bold">192</text>
+<text x="68" y="62" text-anchor="middle" fill="#64748b" font-size="9">Octet 1</text>
+<rect x="128" y="30" width="100" height="38" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+<text x="178" y="46" text-anchor="middle" fill="#00e5ff" font-size="15" font-weight="bold">168</text>
+<text x="178" y="62" text-anchor="middle" fill="#64748b" font-size="9">Octet 2</text>
+<rect x="238" y="30" width="100" height="38" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+<text x="288" y="46" text-anchor="middle" fill="#00e5ff" font-size="15" font-weight="bold">10</text>
+<text x="288" y="62" text-anchor="middle" fill="#64748b" font-size="9">Octet 3</text>
+<rect x="348" y="30" width="100" height="38" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+<text x="398" y="46" text-anchor="middle" fill="#00e5ff" font-size="15" font-weight="bold">5</text>
+<text x="398" y="62" text-anchor="middle" fill="#64748b" font-size="9">Octet 4</text>
+<text x="120" y="52" fill="#e2e8f0" font-size="18">.</text><text x="230" y="52" fill="#e2e8f0" font-size="18">.</text><text x="340" y="52" fill="#e2e8f0" font-size="18">.</text>
+<rect x="18" y="78" width="100" height="18" rx="4" fill="#0f172a" stroke="#1e293b"/>
+<text x="68" y="91" text-anchor="middle" fill="#a78bfa" font-size="9">11000000</text>
+<rect x="128" y="78" width="100" height="18" rx="4" fill="#0f172a" stroke="#1e293b"/>
+<text x="178" y="91" text-anchor="middle" fill="#a78bfa" font-size="9">10101000</text>
+<rect x="238" y="78" width="100" height="18" rx="4" fill="#0f172a" stroke="#1e293b"/>
+<text x="288" y="91" text-anchor="middle" fill="#a78bfa" font-size="9">00001010</text>
+<rect x="348" y="78" width="100" height="18" rx="4" fill="#0f172a" stroke="#1e293b"/>
+<text x="398" y="91" text-anchor="middle" fill="#a78bfa" font-size="9">00000101</text>
+<rect x="18" y="106" width="210" height="18" rx="4" fill="rgba(0,229,255,.08)" stroke="#00e5ff" stroke-width="1"/>
+<text x="123" y="119" text-anchor="middle" fill="#00e5ff" font-size="9">Partie RÉSEAU (classe C)</text>
+<rect x="238" y="106" width="210" height="18" rx="4" fill="rgba(16,185,129,.08)" stroke="#10b981" stroke-width="1"/>
+<text x="343" y="119" text-anchor="middle" fill="#10b981" font-size="9">Partie HÔTE</text>
+<text x="240" y="145" text-anchor="middle" fill="#64748b" font-size="9">127.0.0.1 = loopback (machine elle-même) · 169.254.x.x = APIPA (pas de DHCP trouvé)</text>
+</svg>`,
+
+ipClasses:`<svg viewBox="0 0 480 170" width="480" height="170" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="170" fill="#0d1424"/>
+<text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Classes d'adresses IPv4</text>
+<text x="30" y="36" fill="#64748b" font-size="10">Classe</text><text x="110" y="36" fill="#64748b" font-size="10">1er octet</text>
+<text x="218" y="36" fill="#64748b" font-size="10">Masque défaut</text><text x="340" y="36" fill="#64748b" font-size="10">Plage privée</text>
+<rect x="10" y="42" width="460" height="22" rx="3" fill="rgba(0,229,255,.07)"/>
+<text x="30" y="58" fill="#00e5ff" font-size="12" font-weight="bold">A</text><text x="110" y="58" fill="#e2e8f0" font-size="10">1–126</text><text x="218" y="58" fill="#a78bfa" font-size="10">255.0.0.0 /8</text><text x="340" y="58" fill="#94a3b8" font-size="10">10.0.0.0–10.255.255.255</text>
+<rect x="10" y="68" width="460" height="22" rx="3" fill="rgba(167,139,250,.07)"/>
+<text x="30" y="84" fill="#a78bfa" font-size="12" font-weight="bold">B</text><text x="110" y="84" fill="#e2e8f0" font-size="10">128–191</text><text x="218" y="84" fill="#a78bfa" font-size="10">255.255.0.0 /16</text><text x="340" y="84" fill="#94a3b8" font-size="10">172.16.0.0–172.31.255.255</text>
+<rect x="10" y="94" width="460" height="22" rx="3" fill="rgba(16,185,129,.1)"/>
+<text x="30" y="110" fill="#10b981" font-size="12" font-weight="bold">C</text><text x="110" y="110" fill="#e2e8f0" font-size="10">192–223</text><text x="218" y="110" fill="#a78bfa" font-size="10">255.255.255.0 /24</text><text x="340" y="110" fill="#94a3b8" font-size="10">192.168.0.0–192.168.255.255</text>
+<rect x="10" y="120" width="460" height="22" rx="3" fill="rgba(239,68,68,.07)"/>
+<text x="30" y="136" fill="#ef4444" font-size="12" font-weight="bold">D</text><text x="110" y="136" fill="#e2e8f0" font-size="10">224–239</text><text x="218" y="136" fill="#a78bfa" font-size="10">— (multicast)</text><text x="340" y="136" fill="#94a3b8" font-size="10">Groupes multicast</text>
+<text x="240" y="160" text-anchor="middle" fill="#64748b" font-size="9">★ Classe C la plus utilisée dans les labs ENEAM</text>
+</svg>`,
+
+cables:`<svg viewBox="0 0 480 182" width="480" height="182" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="182" fill="#0d1424"/>
+<text x="118" y="18" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">Câble DROIT</text>
+<text x="118" y="32" text-anchor="middle" fill="#64748b" font-size="9">PC → Switch · Switch → Routeur</text>
+<rect x="14" y="44" width="28" height="78" rx="4" fill="#1a2235" stroke="#10b981" stroke-width="2"/>
+<text x="28" y="87" text-anchor="middle" fill="#10b981" font-size="7">RJ45</text>
+<line x1="42" y1="56" x2="172" y2="56" stroke="#ef4444" stroke-width="2"/>
+<line x1="42" y1="65" x2="172" y2="65" stroke="#f97316" stroke-width="2"/>
+<line x1="42" y1="74" x2="172" y2="74" stroke="#22c55e" stroke-width="2"/>
+<line x1="42" y1="83" x2="172" y2="83" stroke="#3b82f6" stroke-width="2"/>
+<line x1="42" y1="92" x2="172" y2="92" stroke="#8b5cf6" stroke-width="2"/>
+<line x1="42" y1="101" x2="172" y2="101" stroke="#ec4899" stroke-width="2"/>
+<line x1="42" y1="110" x2="172" y2="110" stroke="#64748b" stroke-width="2"/>
+<line x1="42" y1="119" x2="172" y2="119" stroke="#e2e8f0" stroke-width="2"/>
+<rect x="172" y="44" width="28" height="78" rx="4" fill="#1a2235" stroke="#10b981" stroke-width="2"/>
+<text x="186" y="87" text-anchor="middle" fill="#10b981" font-size="7">RJ45</text>
+<text x="105" y="148" text-anchor="middle" fill="#10b981" font-size="9">Fils 1:1 identiques</text>
+<text x="24" y="170" font-size="16">🖥️</text><text x="174" y="170" font-size="16">🔀</text>
+<line x1="240" y1="8" x2="240" y2="182" stroke="#1e293b" stroke-width="1.5"/>
+<text x="362" y="18" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="bold">Câble CROISÉ</text>
+<text x="362" y="32" text-anchor="middle" fill="#64748b" font-size="9">PC ↔ PC · Switch ↔ Switch</text>
+<rect x="256" y="44" width="28" height="78" rx="4" fill="#1a2235" stroke="#f59e0b" stroke-width="2"/>
+<text x="270" y="87" text-anchor="middle" fill="#f59e0b" font-size="7">RJ45</text>
+<line x1="284" y1="56" x2="414" y2="74" stroke="#ef4444" stroke-width="2" stroke-dasharray="3,1"/>
+<line x1="284" y1="65" x2="414" y2="56" stroke="#22c55e" stroke-width="2" stroke-dasharray="3,1"/>
+<line x1="284" y1="74" x2="414" y2="92" stroke="#3b82f6" stroke-width="2" stroke-dasharray="3,1"/>
+<line x1="284" y1="83" x2="414" y2="83" stroke="#f97316" stroke-width="2"/>
+<line x1="284" y1="92" x2="414" y2="65" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3,1"/>
+<line x1="284" y1="101" x2="414" y2="101" stroke="#ec4899" stroke-width="2"/>
+<line x1="284" y1="110" x2="414" y2="110" stroke="#64748b" stroke-width="2"/>
+<line x1="284" y1="119" x2="414" y2="119" stroke="#e2e8f0" stroke-width="2"/>
+<rect x="414" y="44" width="28" height="78" rx="4" fill="#1a2235" stroke="#f59e0b" stroke-width="2"/>
+<text x="428" y="87" text-anchor="middle" fill="#f59e0b" font-size="7">RJ45</text>
+<text x="355" y="148" text-anchor="middle" fill="#f59e0b" font-size="9">TX ↔ RX croisés</text>
+<text x="266" y="170" font-size="16">🖥️</text><text x="420" y="170" font-size="16">🖥️</text>
+</svg>`,
+
+mac:`<svg viewBox="0 0 480 145" width="480" height="145" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="145" fill="#0d1424"/>
+<text x="240" y="20" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="bold">Adresse MAC — 48 bits / 6 octets</text>
+<rect x="12" y="28" width="64" height="34" rx="6" fill="#1a2235" stroke="#a78bfa" stroke-width="2"/>
+<text x="44" y="44" text-anchor="middle" fill="#a78bfa" font-size="14" font-weight="bold">00</text>
+<text x="44" y="57" text-anchor="middle" fill="#64748b" font-size="8">Octet 1</text>
+<rect x="86" y="28" width="64" height="34" rx="6" fill="#1a2235" stroke="#a78bfa" stroke-width="2"/>
+<text x="118" y="44" text-anchor="middle" fill="#a78bfa" font-size="14" font-weight="bold">1A</text>
+<text x="118" y="57" text-anchor="middle" fill="#64748b" font-size="8">Octet 2</text>
+<rect x="160" y="28" width="64" height="34" rx="6" fill="#1a2235" stroke="#a78bfa" stroke-width="2"/>
+<text x="192" y="44" text-anchor="middle" fill="#a78bfa" font-size="14" font-weight="bold">2B</text>
+<text x="192" y="57" text-anchor="middle" fill="#64748b" font-size="8">Octet 3</text>
+<rect x="234" y="28" width="64" height="34" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+<text x="266" y="44" text-anchor="middle" fill="#00e5ff" font-size="14" font-weight="bold">3C</text>
+<text x="266" y="57" text-anchor="middle" fill="#64748b" font-size="8">Octet 4</text>
+<rect x="308" y="28" width="64" height="34" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+<text x="340" y="44" text-anchor="middle" fill="#00e5ff" font-size="14" font-weight="bold">4D</text>
+<text x="340" y="57" text-anchor="middle" fill="#64748b" font-size="8">Octet 5</text>
+<rect x="382" y="28" width="64" height="34" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+<text x="414" y="44" text-anchor="middle" fill="#00e5ff" font-size="14" font-weight="bold">5E</text>
+<text x="414" y="57" text-anchor="middle" fill="#64748b" font-size="8">Octet 6</text>
+<text x="78" y="48" fill="#64748b" font-size="14">-</text><text x="152" y="48" fill="#64748b" font-size="14">-</text><text x="226" y="48" fill="#64748b" font-size="14">-</text><text x="300" y="48" fill="#64748b" font-size="14">-</text><text x="374" y="48" fill="#64748b" font-size="14">-</text>
+<rect x="12" y="74" width="210" height="22" rx="4" fill="rgba(167,139,250,.1)" stroke="#a78bfa" stroke-width="1"/>
+<text x="117" y="89" text-anchor="middle" fill="#a78bfa" font-size="9">OUI — Fabricant (ex: Intel)</text>
+<rect x="234" y="74" width="214" height="22" rx="4" fill="rgba(0,229,255,.08)" stroke="#00e5ff" stroke-width="1"/>
+<text x="341" y="89" text-anchor="middle" fill="#00e5ff" font-size="9">NIC — Numéro unique appareil</text>
+<text x="240" y="114" text-anchor="middle" fill="#94a3b8" font-size="9">Gravée en usine · Unique au monde · Couche 2 OSI</text>
+<text x="240" y="130" text-anchor="middle" fill="#64748b" font-size="9">⚠ 6 octets = 12 chiffres hex obligatoires</text>
+</svg>`,
+
+osi:`<svg viewBox="0 0 480 200" width="480" height="200" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="200" fill="#0d1424"/>
+<text x="240" y="16" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Modèle OSI — 7 couches</text>
+<rect x="10" y="22" width="28" height="22" rx="3" fill="#00e5ff22" stroke="#00e5ff" stroke-width="1.5"/><text x="24" y="37" text-anchor="middle" fill="#00e5ff" font-size="11" font-weight="bold">7</text>
+<rect x="46" y="22" width="118" height="22" rx="3" fill="#00e5ff10"/><text x="105" y="37" text-anchor="middle" fill="#00e5ff" font-size="10" font-weight="bold">Application</text>
+<text x="176" y="37" fill="#94a3b8" font-size="9">HTTP, DNS, FTP, SMTP</text>
+<rect x="10" y="48" width="28" height="22" rx="3" fill="#06b6d422" stroke="#06b6d4" stroke-width="1.5"/><text x="24" y="63" text-anchor="middle" fill="#06b6d4" font-size="11" font-weight="bold">6</text>
+<rect x="46" y="48" width="118" height="22" rx="3" fill="#06b6d410"/><text x="105" y="63" text-anchor="middle" fill="#06b6d4" font-size="10" font-weight="bold">Présentation</text>
+<text x="176" y="63" fill="#94a3b8" font-size="9">Chiffrement, compression</text>
+<rect x="10" y="74" width="28" height="22" rx="3" fill="#0ea5e922" stroke="#0ea5e9" stroke-width="1.5"/><text x="24" y="89" text-anchor="middle" fill="#0ea5e9" font-size="11" font-weight="bold">5</text>
+<rect x="46" y="74" width="118" height="22" rx="3" fill="#0ea5e910"/><text x="105" y="89" text-anchor="middle" fill="#0ea5e9" font-size="10" font-weight="bold">Session</text>
+<text x="176" y="89" fill="#94a3b8" font-size="9">Gestion des sessions</text>
+<rect x="10" y="100" width="28" height="22" rx="3" fill="#a78bfa22" stroke="#a78bfa" stroke-width="1.5"/><text x="24" y="115" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="bold">4</text>
+<rect x="46" y="100" width="118" height="22" rx="3" fill="#a78bfa10"/><text x="105" y="115" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="bold">Transport</text>
+<text x="176" y="115" fill="#94a3b8" font-size="9">TCP, UDP — Segments</text>
+<rect x="10" y="126" width="28" height="22" rx="3" fill="#f59e0b22" stroke="#f59e0b" stroke-width="1.5"/><text x="24" y="141" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="bold">3</text>
+<rect x="46" y="126" width="118" height="22" rx="3" fill="#f59e0b10"/><text x="105" y="141" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="bold">Réseau</text>
+<text x="176" y="141" fill="#94a3b8" font-size="9">IP, routeurs — Paquets</text>
+<rect x="10" y="152" width="28" height="22" rx="3" fill="#10b98122" stroke="#10b981" stroke-width="1.5"/><text x="24" y="167" text-anchor="middle" fill="#10b981" font-size="11" font-weight="bold">2</text>
+<rect x="46" y="152" width="118" height="22" rx="3" fill="#10b98110"/><text x="105" y="167" text-anchor="middle" fill="#10b981" font-size="10" font-weight="bold">Liaison</text>
+<text x="176" y="167" fill="#94a3b8" font-size="9">MAC, switches — Trames</text>
+<rect x="10" y="178" width="28" height="22" rx="3" fill="#64748b22" stroke="#64748b" stroke-width="1.5"/><text x="24" y="193" text-anchor="middle" fill="#64748b" font-size="11" font-weight="bold">1</text>
+<rect x="46" y="178" width="118" height="22" rx="3" fill="#64748b10"/><text x="105" y="193" text-anchor="middle" fill="#64748b" font-size="10" font-weight="bold">Physique</text>
+<text x="176" y="193" fill="#94a3b8" font-size="9">Câbles, hubs, bits</text>
+</svg>`,
+
+ports:`<svg viewBox="0 0 480 175" width="480" height="175" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="175" fill="#0d1424"/>
+<text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Protocoles et ports importants</text>
+<text x="42" y="35" text-anchor="middle" fill="#64748b" font-size="10">Proto</text>
+<text x="102" y="35" text-anchor="middle" fill="#64748b" font-size="10">Port</text>
+<text x="280" y="35" text-anchor="middle" fill="#64748b" font-size="10">Description</text>
+${[["HTTP","80","#00e5ff","Web non sécurisé"],["HTTPS","443","#10b981","Web sécurisé (TLS)"],["FTP","21","#a78bfa","Transfert de fichiers"],["SSH","22","#f59e0b","Admin sécurisée (remplace Telnet)"],["Telnet","23","#ef4444","Admin non sécurisée (obsolète)"],["DNS","53","#06b6d4","Résolution noms de domaine"],["DHCP","67/68","#ec4899","Attribution IP automatique"]].map(([p,port,c,d],i)=>`<rect x="10" y="${40+i*18}" width="460" height="16" rx="2" fill="${i%2===0?'rgba(255,255,255,.015)':'transparent'}"/>
+<rect x="12" y="${42+i*18}" width="54" height="12" rx="2" fill="${c}22" stroke="${c}" stroke-width="1"/>
+<text x="39" y="${53+i*18}" text-anchor="middle" fill="${c}" font-size="9" font-weight="bold">${p}</text>
+<text x="102" y="${53+i*18}" text-anchor="middle" fill="#e2e8f0" font-size="10">${port}</text>
+<text x="176" y="${53+i*18}" fill="#64748b" font-size="9">${d}</text>`).join('')}
+</svg>`,
+
+broadcast:`<svg viewBox="0 0 480 168" width="480" height="168" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="168" fill="#0d1424"/>
+<text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Adresses spéciales dans un réseau /24</text>
+<rect x="20" y="28" width="440" height="36" rx="6" fill="#1a2235" stroke="#1e293b"/>
+<rect x="20" y="28" width="52" height="36" rx="6" fill="rgba(0,229,255,.15)" stroke="#00e5ff" stroke-width="1.5"/>
+<text x="46" y="44" text-anchor="middle" fill="#00e5ff" font-size="9" font-weight="bold">x.x.x.0</text>
+<text x="46" y="57" text-anchor="middle" fill="#00e5ff" font-size="8">Réseau</text>
+<rect x="408" y="28" width="52" height="36" rx="6" fill="rgba(239,68,68,.15)" stroke="#ef4444" stroke-width="1.5"/>
+<text x="434" y="44" text-anchor="middle" fill="#ef4444" font-size="8" font-weight="bold">x.x.x.255</text>
+<text x="434" y="57" text-anchor="middle" fill="#ef4444" font-size="8">Broadcast</text>
+<text x="230" y="44" text-anchor="middle" fill="#10b981" font-size="10">.1 à .254 — 254 hôtes utilisables</text>
+<rect x="20" y="76" width="200" height="36" rx="6" fill="rgba(0,229,255,.06)" stroke="#00e5ff" stroke-width="1"/>
+<text x="120" y="92" text-anchor="middle" fill="#00e5ff" font-size="10" font-weight="bold">Adresse réseau</text>
+<text x="120" y="106" text-anchor="middle" fill="#94a3b8" font-size="10">192.168.10.0/24</text>
+<rect x="260" y="76" width="200" height="36" rx="6" fill="rgba(239,68,68,.06)" stroke="#ef4444" stroke-width="1"/>
+<text x="360" y="92" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="bold">Broadcast réseau</text>
+<text x="360" y="106" text-anchor="middle" fill="#94a3b8" font-size="10">192.168.10.255</text>
+<rect x="20" y="124" width="440" height="30" rx="6" fill="rgba(245,158,11,.08)" stroke="#f59e0b" stroke-width="1"/>
+<text x="240" y="138" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="bold">255.255.255.255 = Broadcast LOCAL limité</text>
+<text x="240" y="150" text-anchor="middle" fill="#94a3b8" font-size="9">Toutes les machines du réseau local</text>
+</svg>`,
+
+tcpUdp:`<svg viewBox="0 0 480 178" width="480" height="178" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="178" fill="#0d1424"/>
+<line x1="240" y1="8" x2="240" y2="178" stroke="#1e293b" stroke-width="1.5"/>
+<text x="120" y="22" text-anchor="middle" fill="#00e5ff" font-size="13" font-weight="bold">TCP — Fiable</text>
+<text x="120" y="35" text-anchor="middle" fill="#64748b" font-size="9">Orienté connexion · Acquittements</text>
+<line x1="58" y1="62" x2="58" y2="158" stroke="#1e293b" stroke-width="1"/>
+<line x1="188" y1="62" x2="188" y2="158" stroke="#1e293b" stroke-width="1"/>
+<text x="28" y="56" fill="#94a3b8" font-size="9">Client</text><text x="174" y="56" fill="#94a3b8" font-size="9">Serveur</text>
+<line x1="58" y1="72" x2="188" y2="84" stroke="#00e5ff" stroke-width="1.5"/><text x="122" y="71" text-anchor="middle" fill="#00e5ff" font-size="9">SYN →</text>
+<line x1="188" y1="94" x2="58" y2="106" stroke="#10b981" stroke-width="1.5"/><text x="122" y="93" text-anchor="middle" fill="#10b981" font-size="9">← SYN-ACK</text>
+<line x1="58" y1="116" x2="188" y2="128" stroke="#a78bfa" stroke-width="1.5"/><text x="122" y="115" text-anchor="middle" fill="#a78bfa" font-size="9">ACK →</text>
+<text x="120" y="148" text-anchor="middle" fill="#10b981" font-size="9">Connexion établie ✓</text>
+<text x="120" y="162" text-anchor="middle" fill="#64748b" font-size="8">HTTP, FTP, SSH, SMTP...</text>
+<text x="360" y="22" text-anchor="middle" fill="#f59e0b" font-size="13" font-weight="bold">UDP — Rapide</text>
+<text x="360" y="35" text-anchor="middle" fill="#64748b" font-size="9">Sans connexion · Sans acquittement</text>
+<line x1="296" y1="62" x2="296" y2="158" stroke="#1e293b" stroke-width="1"/>
+<line x1="426" y1="62" x2="426" y2="158" stroke="#1e293b" stroke-width="1"/>
+<text x="268" y="56" fill="#94a3b8" font-size="9">Client</text><text x="412" y="56" fill="#94a3b8" font-size="9">Serveur</text>
+<line x1="296" y1="74" x2="426" y2="82" stroke="#f59e0b" stroke-width="1.5"/><text x="362" y="73" text-anchor="middle" fill="#f59e0b" font-size="9">Data →</text>
+<line x1="296" y1="94" x2="426" y2="102" stroke="#f59e0b" stroke-width="1.5"/><text x="362" y="93" text-anchor="middle" fill="#f59e0b" font-size="9">Data →</text>
+<line x1="296" y1="114" x2="426" y2="122" stroke="#f59e0b" stroke-width="1.5"/><text x="362" y="113" text-anchor="middle" fill="#f59e0b" font-size="9">Data →</text>
+<text x="360" y="148" text-anchor="middle" fill="#ef4444" font-size="9">Pas d'accusé de réception</text>
+<text x="360" y="162" text-anchor="middle" fill="#64748b" font-size="8">DNS, VoIP, Streaming, DHCP...</text>
+</svg>`,
+
+dhcp:`<svg viewBox="0 0 480 165" width="480" height="165" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="165" fill="#0d1424"/>
+<text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Processus DHCP (DORA)</text>
+<rect x="20" y="28" width="72" height="38" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="1.5"/>
+<text x="56" y="50" text-anchor="middle" fill="#00e5ff" font-size="10">CLIENT</text>
+<text x="56" y="62" text-anchor="middle" fill="#64748b" font-size="8">sans IP</text>
+<rect x="388" y="28" width="72" height="38" rx="6" fill="#1a2235" stroke="#10b981" stroke-width="1.5"/>
+<text x="424" y="50" text-anchor="middle" fill="#10b981" font-size="10">SERVEUR</text>
+<text x="424" y="62" text-anchor="middle" fill="#64748b" font-size="8">DHCP</text>
+<line x1="30" y1="82" x2="30" y2="158" stroke="#1e293b" stroke-width="1"/>
+<line x1="450" y1="82" x2="450" y2="158" stroke="#1e293b" stroke-width="1"/>
+<line x1="30" y1="92" x2="450" y2="99" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="240" y="90" text-anchor="middle" fill="#f59e0b" font-size="9">1. DISCOVER → (broadcast)</text>
+<line x1="450" y1="107" x2="30" y2="114" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="240" y="106" text-anchor="middle" fill="#a78bfa" font-size="9">2. ← OFFER (propose 192.168.1.10)</text>
+<line x1="30" y1="122" x2="450" y2="129" stroke="#00e5ff" stroke-width="1.5"/>
+<text x="240" y="121" text-anchor="middle" fill="#00e5ff" font-size="9">3. REQUEST → (j'accepte)</text>
+<line x1="450" y1="137" x2="30" y2="144" stroke="#10b981" stroke-width="1.5"/>
+<text x="240" y="136" text-anchor="middle" fill="#10b981" font-size="9">4. ← ACK ✓ (IP confirmée)</text>
+<text x="56" y="158" text-anchor="middle" fill="#10b981" font-size="9">IP .10 ✓</text>
+</svg>`,
+
+dns:`<svg viewBox="0 0 480 152" width="480" height="152" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="152" fill="#0d1424"/>
+<text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Résolution DNS — Nom → IP</text>
+<text x="38" y="68" font-size="30">🖥️</text>
+<text x="55" y="86" text-anchor="middle" fill="#94a3b8" font-size="8">Client</text>
+<rect x="178" y="48" width="84" height="42" rx="8" fill="#1a2235" stroke="#06b6d4" stroke-width="2"/>
+<text x="220" y="68" text-anchor="middle" fill="#06b6d4" font-size="10" font-weight="bold">Serveur DNS</text>
+<text x="220" y="82" text-anchor="middle" fill="#64748b" font-size="9">Port 53</text>
+<rect x="360" y="48" width="84" height="42" rx="8" fill="#1a2235" stroke="#10b981" stroke-width="2"/>
+<text x="402" y="68" text-anchor="middle" fill="#10b981" font-size="10" font-weight="bold">Serveur Web</text>
+<text x="402" y="82" text-anchor="middle" fill="#64748b" font-size="9">142.250.74.46</text>
+<line x1="70" y1="65" x2="176" y2="65" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="122" y="60" text-anchor="middle" fill="#f59e0b" font-size="8">www.google.com ?</text>
+<line x1="176" y1="78" x2="70" y2="78" stroke="#06b6d4" stroke-width="1.5"/>
+<text x="122" y="93" text-anchor="middle" fill="#06b6d4" font-size="8">→ 142.250.74.46</text>
+<line x1="262" y1="70" x2="358" y2="70" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,2"/>
+<text x="310" y="64" text-anchor="middle" fill="#10b981" font-size="8">connexion directe</text>
+<text x="240" y="116" text-anchor="middle" fill="#94a3b8" font-size="9">1. Demande → DNS  2. Réponse IP  3. Connexion directe au serveur</text>
+<text x="240" y="132" text-anchor="middle" fill="#64748b" font-size="9">Sans DNS, il faudrait mémoriser toutes les adresses IP !</text>
+</svg>`,
+
+vpn:`<svg viewBox="0 0 480 148" width="480" height="148" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="148" fill="#0d1424"/>
+<text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">VPN — Tunnel Chiffré sur Internet</text>
+<text x="20" y="70" font-size="30">🖥️</text>
+<text x="37" y="88" text-anchor="middle" fill="#94a3b8" font-size="8">Employé</text>
+<rect x="160" y="54" width="140" height="36" rx="18" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>
+<text x="230" y="76" text-anchor="middle" fill="#64748b" font-size="11">🌐 Internet</text>
+<text x="418" y="70" font-size="30">🏢</text>
+<text x="432" y="88" text-anchor="middle" fill="#94a3b8" font-size="8">Entreprise</text>
+<rect x="52" y="62" width="366" height="16" rx="8" fill="none" stroke="#a78bfa" stroke-width="2" stroke-dasharray="6,3"/>
+<line x1="52" y1="70" x2="158" y2="70" stroke="#a78bfa" stroke-width="2"/>
+<line x1="302" y1="70" x2="418" y2="70" stroke="#a78bfa" stroke-width="2"/>
+<text x="237" y="56" text-anchor="middle" fill="#a78bfa" font-size="9">🔒 Tunnel VPN chiffré (TLS)</text>
+<text x="240" y="112" text-anchor="middle" fill="#10b981" font-size="9">✓ Données chiffrées · IP masquée · Accès réseau privé à distance</text>
+<text x="240" y="128" text-anchor="middle" fill="#64748b" font-size="9">Télétravail · Confidentialité · Contournement géographique</text>
+</svg>`,
+
+duplex:`<svg viewBox="0 0 480 162" width="480" height="162" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="162" fill="#0d1424"/>
+<text x="74" y="16" text-anchor="middle" fill="#64748b" font-size="11" font-weight="bold">SIMPLEX</text>
+<text x="28" y="46" font-size="20">📻</text><line x1="52" y1="48" x2="112" y2="48" stroke="#64748b" stroke-width="2"/><polygon points="112,42 125,48 112,54" fill="#64748b"/><text x="130" y="52" font-size="20">👂</text>
+<text x="74" y="86" text-anchor="middle" fill="#64748b" font-size="9">Un seul sens</text>
+<text x="74" y="100" text-anchor="middle" fill="#64748b" font-size="8">Radio, TV</text>
+<line x1="164" y1="8" x2="164" y2="155" stroke="#1e293b" stroke-width="1.5"/>
+<text x="244" y="16" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="bold">HALF-DUPLEX</text>
+<text x="178" y="46" font-size="20">📟</text><line x1="202" y1="40" x2="262" y2="40" stroke="#f59e0b" stroke-width="2"/><polygon points="262,34 275,40 262,46" fill="#f59e0b"/>
+<text x="278" y="46" font-size="20">📟</text><line x1="278" y1="62" x2="218" y2="62" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,2"/><polygon points="218,56 205,62 218,68" fill="#f59e0b"/>
+<text x="244" y="92" text-anchor="middle" fill="#f59e0b" font-size="9">2 sens — PAS simultanément</text>
+<text x="244" y="106" text-anchor="middle" fill="#64748b" font-size="8">Talkie-walkie, Wi-Fi basique</text>
+<line x1="324" y1="8" x2="324" y2="155" stroke="#1e293b" stroke-width="1.5"/>
+<text x="404" y="16" text-anchor="middle" fill="#10b981" font-size="11" font-weight="bold">FULL-DUPLEX</text>
+<text x="334" y="46" font-size="20">📞</text><line x1="358" y1="40" x2="426" y2="40" stroke="#10b981" stroke-width="2"/><polygon points="426,34 439,40 426,46" fill="#10b981"/>
+<text x="438" y="46" font-size="20">📞</text><line x1="438" y1="58" x2="360" y2="58" stroke="#10b981" stroke-width="2"/><polygon points="360,52 347,58 360,64" fill="#10b981"/>
+<text x="404" y="92" text-anchor="middle" fill="#10b981" font-size="9">2 sens SIMULTANÉMENT</text>
+<text x="404" y="106" text-anchor="middle" fill="#64748b" font-size="8">Téléphone, Ethernet moderne</text>
+</svg>`,
+
+cidr:`<svg viewBox="0 0 480 168" width="480" height="168" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="168" fill="#0d1424"/>
+<text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Notation CIDR — Masques de sous-réseau</text>
+<text x="60" y="36" text-anchor="middle" fill="#64748b" font-size="10">CIDR</text>
+<text x="178" y="36" text-anchor="middle" fill="#64748b" font-size="10">Masque</text>
+<text x="300" y="36" text-anchor="middle" fill="#64748b" font-size="10">Hôtes utilisables</text>
+<text x="420" y="36" text-anchor="middle" fill="#64748b" font-size="10">Note</text>
+${[["/8","255.0.0.0","16 777 214","Classe A","#00e5ff"],["/16","255.255.0.0","65 534","Classe B","#a78bfa"],["/24","255.255.255.0","254","Classe C ★","#10b981"],["/25","255.255.255.128","126","Sous-réseau","#f59e0b"],["/26","255.255.255.192","62","4 blocs /24","#06b6d4"],["/27","255.255.255.224","30","8 blocs /24","#f97316"],["/30","255.255.255.252","2","Lien P-à-P","#ec4899"]].map(([cidr,mask,h,note,c],i)=>`<rect x="10" y="${42+i*18}" width="460" height="16" rx="2" fill="${i%2===0?'rgba(255,255,255,.02)':'transparent'}"/>
+<text x="60" y="${54+i*18}" text-anchor="middle" fill="${c}" font-size="12" font-weight="bold">${cidr}</text>
+<text x="178" y="${54+i*18}" text-anchor="middle" fill="#e2e8f0" font-size="10">${mask}</text>
+<text x="300" y="${54+i*18}" text-anchor="middle" fill="${c}" font-size="10">${h}</text>
+<text x="420" y="${54+i*18}" text-anchor="middle" fill="#94a3b8" font-size="9">${note}</text>`).join('')}
+</svg>`,
+
+subnet:`<svg viewBox="0 0 480 200" width="480" height="200" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="200" fill="#0d1424"/>
+<text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Découpage 192.168.1.0/24 en /26</text>
+<text x="240" y="32" text-anchor="middle" fill="#64748b" font-size="9">Bits empruntés : 2 → 4 sous-réseaux · 2^6-2 = 62 hôtes chacun</text>
+${[["S/R 0","192.168.1.0","192.168.1.63","#00e5ff"],["S/R 1","192.168.1.64","192.168.1.127","#a78bfa"],["S/R 2","192.168.1.128","192.168.1.191","#10b981"],["S/R 3","192.168.1.192","192.168.1.255","#f59e0b"]].map(([sr,start,end,c],i)=>`
+<rect x="10" y="${42+i*36}" width="460" height="32" rx="6" fill="${c}12" stroke="${c}" stroke-width="1.5"/>
+<text x="60" y="${54+i*36}" text-anchor="middle" fill="${c}" font-size="10" font-weight="bold">${sr}</text>
+<text x="60" y="${67+i*36}" text-anchor="middle" fill="${c}" font-size="8">64 adresses</text>
+<text x="240" y="${54+i*36}" text-anchor="middle" fill="#e2e8f0" font-size="10">${start}</text>
+<text x="390" y="${54+i*36}" text-anchor="middle" fill="#94a3b8" font-size="9">→ ${end}</text>
+<text x="240" y="${67+i*36}" text-anchor="middle" fill="#64748b" font-size="8">Hôtes: .${parseInt(start.split('.')[3])+1} → .${parseInt(end.split('.')[3])-1}</text>`).join('')}
+</svg>`,
+
+subnet27:`<svg viewBox="0 0 480 232" width="480" height="232" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="232" fill="#0d1424"/>
+<text x="240" y="16" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Découpage 192.168.1.0/24 en /27</text>
+<text x="240" y="29" text-anchor="middle" fill="#64748b" font-size="9">Bits empruntés : 3 → 8 sous-réseaux · 2^5-2 = 30 hôtes chacun</text>
+${[["192.168.1.0","192.168.1.31","#00e5ff"],["192.168.1.32","192.168.1.63","#a78bfa"],["192.168.1.64","192.168.1.95","#10b981"],["192.168.1.96","192.168.1.127","#f59e0b"],["192.168.1.128","192.168.1.159","#06b6d4"],["192.168.1.160","192.168.1.191","#f97316"],["192.168.1.192","192.168.1.223","#ec4899"],["192.168.1.224","192.168.1.255","#84cc16"]].map(([start,end,c],i)=>`
+<rect x="8" y="${36+i*24}" width="464" height="20" rx="4" fill="${c}12" stroke="${c}" stroke-width="1"/>
+<text x="110" y="${50+i*24}" text-anchor="middle" fill="${c}" font-size="10">${start}</text>
+<text x="240" y="${50+i*24}" text-anchor="middle" fill="#64748b" font-size="9">→ ${end}</text>
+<text x="400" y="${50+i*24}" text-anchor="middle" fill="#94a3b8" font-size="8">30 hôtes</text>`).join('')}
+</svg>`,
+
+subnetCalc:`<svg viewBox="0 0 480 185" width="480" height="185" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="185" fill="#0d1424"/>
+<text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Formules essentielles de sous-réseautage</text>
+<rect x="10" y="28" width="460" height="32" rx="6" fill="rgba(0,229,255,.08)" stroke="#00e5ff" stroke-width="1.5"/>
+<text x="240" y="42" text-anchor="middle" fill="#00e5ff" font-size="11" font-weight="bold">Nombre de sous-réseaux = 2ⁿ</text>
+<text x="240" y="56" text-anchor="middle" fill="#94a3b8" font-size="9">n = nombre de bits empruntés à la partie hôte</text>
+<rect x="10" y="68" width="460" height="32" rx="6" fill="rgba(16,185,129,.08)" stroke="#10b981" stroke-width="1.5"/>
+<text x="240" y="82" text-anchor="middle" fill="#10b981" font-size="11" font-weight="bold">Nombre d'hôtes par sous-réseau = 2ʰ - 2</text>
+<text x="240" y="96" text-anchor="middle" fill="#94a3b8" font-size="9">h = bits restants pour les hôtes · -2 = adresse réseau + broadcast</text>
+<rect x="10" y="108" width="460" height="32" rx="6" fill="rgba(245,158,11,.08)" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="240" y="122" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="bold">Incrément (taille du bloc) = 256 - valeur du masque</text>
+<text x="240" y="136" text-anchor="middle" fill="#94a3b8" font-size="9">Ex: masque .192 → incrément = 256-192 = 64</text>
+<rect x="10" y="148" width="460" height="30" rx="6" fill="rgba(167,139,250,.08)" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="240" y="160" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="bold">Exemple /26 : n=2 → 4 S/R · h=6 → 62 hôtes · incrément=64</text>
+<text x="240" y="174" text-anchor="middle" fill="#94a3b8" font-size="9">Plages: .0-.63 · .64-.127 · .128-.191 · .192-.255</text>
+</svg>`,
+
+subnetB:`<svg viewBox="0 0 480 178" width="480" height="178" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="178" fill="#0d1424"/>
+<text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Découpage 172.16.0.0/16 en /18</text>
+<text x="240" y="31" text-anchor="middle" fill="#64748b" font-size="9">Bits empruntés : 2 → 4 sous-réseaux · 2^14-2 = 16 382 hôtes chacun</text>
+${[["172.16.0.0/18","172.16.63.255","#00e5ff"],["172.16.64.0/18","172.16.127.255","#a78bfa"],["172.16.128.0/18","172.16.191.255","#10b981"],["172.16.192.0/18","172.16.255.255","#f59e0b"]].map(([sr,end,c],i)=>`
+<rect x="10" y="${40+i*32}" width="460" height="28" rx="6" fill="${c}12" stroke="${c}" stroke-width="1.5"/>
+<text x="160" y="${52+i*32}" text-anchor="middle" fill="${c}" font-size="11" font-weight="bold">${sr}</text>
+<text x="360" y="${52+i*32}" text-anchor="middle" fill="#94a3b8" font-size="9">broadcast: ${end}</text>
+<text x="240" y="${63+i*32}" text-anchor="middle" fill="#64748b" font-size="8">16 382 hôtes utilisables</text>`).join('')}
+</svg>`,
+
+security:`<svg viewBox="0 0 480 168" width="480" height="168" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="168" fill="#0d1424"/>
+<text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Menaces réseau courantes</text>
+${[["🦠 Virus","Se propage en infectant des fichiers","#ef4444"],["🪱 Ver (Worm)","Se propage SEUL via le réseau, sans fichier hôte","#f59e0b"],["🎣 Phishing","Fausse page pour voler identifiants","#a78bfa"],["💪 Brute Force","Essaie toutes les combinaisons de mots de passe","#00e5ff"],["👤 Man-in-Middle","Intercepte le trafic entre deux machines","#10b981"]].map(([ico,desc,c],i)=>`
+<rect x="10" y="${28+i*26}" width="460" height="22" rx="5" fill="${c}10" stroke="${c}" stroke-width="1"/>
+<text x="38" y="${43+i*26}" fill="${c}" font-size="12">${ico}</text>
+<text x="200" y="${43+i*26}" text-anchor="middle" fill="#e2e8f0" font-size="10">${desc}</text>`).join('')}
+</svg>`,
+
+internetDNS:`<svg viewBox="0 0 480 172" width="480" height="172" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="172" fill="#0d1424"/>
+<text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Structure d'une URL complète</text>
+<rect x="10" y="28" width="460" height="28" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="1.5"/>
+<text x="240" y="46" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="bold">https://www.eneam.bj/cours?id=3</text>
+<line x1="38" y1="56" x2="38" y2="72" stroke="#00e5ff" stroke-width="1.5"/>
+<text x="38" y="84" text-anchor="middle" fill="#00e5ff" font-size="8">Protocole</text>
+<line x1="100" y1="56" x2="100" y2="72" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="100" y="84" text-anchor="middle" fill="#a78bfa" font-size="8">sous-dom.</text>
+<line x1="148" y1="56" x2="148" y2="72" stroke="#10b981" stroke-width="1.5"/>
+<text x="160" y="84" text-anchor="middle" fill="#10b981" font-size="8">domaine</text>
+<line x1="200" y1="56" x2="200" y2="72" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="200" y="84" text-anchor="middle" fill="#f59e0b" font-size="8">TLD</text>
+<line x1="240" y1="56" x2="240" y2="72" stroke="#f97316" stroke-width="1.5"/>
+<text x="265" y="84" text-anchor="middle" fill="#f97316" font-size="8">chemin</text>
+<line x1="320" y1="56" x2="320" y2="72" stroke="#ec4899" stroke-width="1.5"/>
+<text x="360" y="84" text-anchor="middle" fill="#ec4899" font-size="8">paramètre</text>
+${[["DNS A","Associe un nom à une IPv4","#00e5ff"],["DNS MX","Indique le serveur de mail","#10b981"],["DNS CNAME","Alias vers un autre nom","#a78bfa"],["DNS PTR","Résolution inverse (IP → nom)","#f59e0b"],["TTL","Durée de validité du cache DNS","#f97316"]].map(([k,v,c],i)=>`
+<rect x="${i<3?10:250}" y="${100+(i<3?i:i-3)*22}" width="${i<3?230:220}" height="18" rx="4" fill="${c}12"/>
+<text x="${i<3?18:258}" y="${114+(i<3?i:i-3)*22}" fill="${c}" font-size="9" font-weight="bold">${k}</text>
+<text x="${i<3?80:320}" y="${114+(i<3?i:i-3)*22}" fill="#94a3b8" font-size="9">${v}</text>`).join('')}
+</svg>`,
+
+architecture:`<svg viewBox="0 0 480 168" width="480" height="168" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="480" height="168" fill="#0d1424"/>
+<text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Client-Serveur vs Peer-to-Peer</text>
+<line x1="240" y1="28" x2="240" y2="165" stroke="#1e293b" stroke-width="1.5"/>
+<text x="120" y="38" text-anchor="middle" fill="#00e5ff" font-size="11" font-weight="bold">CLIENT-SERVEUR</text>
+<rect x="90" y="48" width="60" height="28" rx="5" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+<text x="120" y="66" text-anchor="middle" fill="#00e5ff" font-size="9" font-weight="bold">SERVEUR</text>
+<line x1="80" y1="62" x2="34" y2="90" stroke="#00e5ff" stroke-width="1.5"/><text x="14" y="100" font-size="16">🖥️</text>
+<line x1="120" y1="76" x2="120" y2="90" stroke="#00e5ff" stroke-width="1.5"/><text x="104" y="104" font-size="16">🖥️</text>
+<line x1="160" y1="62" x2="196" y2="90" stroke="#00e5ff" stroke-width="1.5"/><text x="186" y="100" font-size="16">🖥️</text>
+<text x="120" y="128" text-anchor="middle" fill="#64748b" font-size="8">Centralisé · Facile à gérer</text>
+<text x="120" y="140" text-anchor="middle" fill="#64748b" font-size="8">Serveur = point de défaillance</text>
+<text x="360" y="38" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="bold">PEER-TO-PEER (P2P)</text>
+<text x="268" y="68" font-size="16">🖥️</text><text x="358" y="52" font-size="16">🖥️</text><text x="448" y="68" font-size="16">🖥️</text>
+<text x="268" y="118" font-size="16">🖥️</text><text x="448" y="118" font-size="16">🖥️</text>
+<line x1="286" y1="78" x2="366" y2="64" stroke="#f59e0b" stroke-width="1.5"/>
+<line x1="376" y1="64" x2="456" y2="78" stroke="#f59e0b" stroke-width="1.5"/>
+<line x1="286" y1="108" x2="366" y2="64" stroke="#f59e0b" stroke-width="1.5"/>
+<line x1="456" y1="108" x2="376" y2="64" stroke="#f59e0b" stroke-width="1.5"/>
+<line x1="286" y1="86" x2="286" y2="108" stroke="#f59e0b" stroke-width="1.5"/>
+<line x1="456" y1="86" x2="456" y2="108" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="360" y="140" text-anchor="middle" fill="#64748b" font-size="8">Décentralisé · Pas de serveur central</text>
+</svg>`,
+};
+
+// ══════════════════════════════════════════════
+// DÉFINITION DES THÈMES
+// ══════════════════════════════════════════════
+const THEMES = [
+  { id:'t1', name:'Types de réseaux', icon:'🌐', color:'#00e5ff', desc:'LAN, MAN, WAN, PAN' },
+  { id:'t2', name:'Équipements réseau', icon:'🔧', color:'#a78bfa', desc:'Hub, switch, routeur, NIC' },
+  { id:'t3', name:'Câbles & connexions', icon:'🔌', color:'#10b981', desc:'RJ45, droit, croisé' },
+  { id:'t4', name:'Adressage IP & classes', icon:'🧮', color:'#f59e0b', desc:'IPv4, classes A/B/C, binaire' },
+  { id:'t5', name:'Sous-réseaux', icon:'✂️', color:'#06b6d4', desc:'CIDR, masques, calculs' },
+  { id:'t6', name:'Adresses MAC & OSI', icon:'🏗️', color:'#ec4899', desc:'Couches OSI, adresses MAC' },
+  { id:'t7', name:'Protocoles & services', icon:'📡', color:'#f97316', desc:'TCP, UDP, DNS, DHCP, HTTP' },
+  { id:'t8', name:'Sécurité réseau', icon:'🔐', color:'#ef4444', desc:'VPN, firewall, menaces' },
+  { id:'t9', name:'Internet & architecture', icon:'🏛️', color:'#84cc16', desc:'DNS, URL, P2P, topologies' },
+];
+
+// ══════════════════════════════════════════════
+// BANQUE DE QUESTIONS
+// ══════════════════════════════════════════════
+const BANK = [
+// ── T1 : Types de réseaux ──
+{t:'t1',q:"Un réseau qui relie les ordinateurs d'une même école (comme l'ENEAM) est de type :",img:"networkTypes",o:["MAN","WAN","LAN","PAN"],c:2,e:"Un LAN (Local Area Network) relie des équipements sur une zone réduite : bâtiment, campus. C'est le cas d'un réseau scolaire."},
+{t:'t1',q:"Le réseau Internet est de type :",img:"networkTypes",o:["LAN","MAN","WAN","PAN"],c:2,e:"Le WAN (Wide Area Network) couvre de très grandes distances. Internet est le plus grand WAN existant."},
+{t:'t1',q:"Un réseau composé d'un PC, smartphone, imprimante et tablette reliés en Wi-Fi personnel est de type :",img:"networkTypes",o:["LAN","MAN","WAN","PAN"],c:3,e:"Un PAN (Personal Area Network) regroupe les appareils personnels d'un même utilisateur dans un rayon de quelques mètres."},
+{t:'t1',q:"Un réseau reliant les bureaux d'une entreprise dans plusieurs quartiers d'une même ville est de type :",img:"networkTypes",o:["PAN","LAN","MAN","WAN"],c:2,e:"Un MAN (Metropolitan Area Network) couvre une zone métropolitaine, intermédiaire entre LAN et WAN."},
+{t:'t1',q:"Un réseau informatique est :",o:["Un ensemble d'équipements reliés pour partager des ressources","Un seul ordinateur très puissant","Un logiciel de communication","Un câble reliant deux écrans"],c:0,e:"Un réseau informatique est un ensemble d'équipements interconnectés, capables de partager des données et des ressources."},
+{t:'t1',q:"Quelle est la différence principale entre un intranet et Internet ?",o:["L'intranet est plus rapide qu'Internet","L'intranet est un réseau privé interne, Internet est public","L'intranet est sans fil, Internet filaire","Ce sont deux noms du même réseau"],c:1,e:"Un intranet est un réseau privé interne à une organisation, utilisant les technologies Internet mais inaccessible de l'extérieur."},
+{t:'t1',q:"Un extranet est :",o:["Un réseau local très étendu","Un accès contrôlé d'un intranet à des partenaires externes","Un type de réseau sans fil","Le nom technique d'Internet"],c:1,e:"Un extranet étend un intranet à des partenaires, fournisseurs ou clients extérieurs, via un accès sécurisé et contrôlé."},
+{t:'t1',q:"Quel type de réseau les opérateurs téléphoniques utilisent-ils pour relier leurs antennes dans un pays ?",o:["PAN","LAN","MAN","WAN"],c:3,e:"Les infrastructures nationales des opérateurs forment un WAN. Elles couvrent un pays entier, reliant villes et régions."},
+
+// ── T2 : Équipements ──
+{t:'t2',q:"Un hub est :",img:"hubVsSwitch",o:["Un commutateur intelligent","Un répéteur multi-ports diffusant à tous les ports","Un routeur sans fil","Un équipement de couche 3"],c:1,e:"Un hub reçoit un signal et le réémet sur TOUS ses ports sans distinction. Il opère à la couche 1 du modèle OSI."},
+{t:'t2',q:"Un switch diffère du hub car il :",img:"hubVsSwitch",o:["Envoie les données à tous les ports","Route les paquets entre réseaux","Envoie les données uniquement au port destinataire","Attribue les adresses IP"],c:2,e:"Un switch apprend les adresses MAC et envoie les trames uniquement au port concerné (couche 2)."},
+{t:'t2',q:"Quel équipement relie deux réseaux IP distincts et choisit le meilleur chemin ?",img:"router",o:["Hub","Switch","Modem","Routeur"],c:3,e:"Le routeur (couche 3) interconnecte des réseaux différents via les adresses IP et des tables de routage."},
+{t:'t2',q:"Lequel de ces termes ne désigne PAS un hub ?",img:"hubVsSwitch",o:["Répéteur multi-ports","Concentrateur","Commutateur","Équipement réseau couche 1"],c:2,e:"Commutateur = switch, qui est différent d'un hub. Hub, répéteur multi-ports et concentrateur sont des synonymes."},
+{t:'t2',q:"Si le switch central d'un réseau en étoile tombe en panne :",img:"star",o:["Seul le switch est affecté","Toutes les machines reliées cessent de communiquer","Le routeur prend le relais","Rien ne change"],c:1,e:"Dans une topologie en étoile, le switch central est le point unique de défaillance. Sa panne coupe toutes les communications."},
+{t:'t2',q:"Quel équipement ne nécessite PAS d'adresse IP pour fonctionner ?",img:"osi",o:["Routeur","Switch / Hub basique","Serveur","PC"],c:1,e:"Un switch ou hub basique opère aux couches 1-2 via les adresses MAC. Seul un switch managé a besoin d'une IP."},
+{t:'t2',q:"Une carte NIC est :",o:["Un type de câble réseau","Une carte réseau permettant à un PC de se connecter au réseau","Un protocole de sécurité","Un type de routeur"],c:1,e:"La NIC (Network Interface Card) est le composant matériel permettant à l'ordinateur de communiquer. Elle possède une adresse MAC unique."},
+{t:'t2',q:"Quel équipement fonctionne à la fois en couche 2 et couche 3 ?",img:"osi",o:["Hub","Switch simple","Switch multicouche (Layer 3 switch)","Câble RJ45"],c:2,e:"Un switch multicouche (Layer 3 switch) peut commuter en couche 2 (MAC) et router en couche 3 (IP), combinant les fonctions de switch et routeur."},
+{t:'t2',q:"Un pont (bridge) réseau opère à quelle couche OSI ?",img:"osi",o:["Couche 1","Couche 2","Couche 3","Couche 4"],c:1,e:"Un pont (bridge) opère à la couche 2 (Liaison). Il segmente un réseau en filtrant les trames selon les adresses MAC, comme un switch à 2 ports."},
+{t:'t2',q:"Dans Cisco Packet Tracer, un symbole avec une antenne désigne :",o:["Un routeur","Un switch","Un point d'accès Wi-Fi","Un serveur DNS"],c:2,e:"Dans Cisco Packet Tracer, le point d'accès Wi-Fi (Access Point) est représenté par un équipement avec une antenne."},
+
+// ── T3 : Câbles ──
+{t:'t3',q:"Quel câble relie deux PC directement sans switch ?",img:"cables",o:["Câble droit (straight-through)","Câble croisé (cross-over)","Câble console","Fibre optique"],c:1,e:"Le câble croisé relie deux équipements de même type (PC-PC, switch-switch) en inversant les paires TX et RX."},
+{t:'t3',q:"Quel câble relie un PC à un switch ?",img:"cables",o:["Câble croisé","Câble coaxial","Câble droit (straight-through)","Câble console"],c:2,e:"Le câble droit relie des équipements de type différent : PC → switch, switch → routeur."},
+{t:'t3',q:"Si l'ordre des fils RJ45 est différent aux deux extrémités, le câble est :",img:"cables",o:["Un câble droit","Un câble croisé","Un câble console","Un câble coaxial"],c:1,e:"Dans un câble croisé, T568A d'un côté et T568B de l'autre. Les paires TX et RX sont croisées pour communication directe."},
+{t:'t3',q:"Le connecteur standard des câbles Ethernet cuivre est :",img:"cables",o:["RJ11","RJ45","BNC","SC"],c:1,e:"RJ45 est le connecteur standard Ethernet (8 broches). RJ11 = téléphone, BNC = coaxial, SC = fibre optique."},
+{t:'t3',q:"Un câble droit relie :",img:"cables",o:["PC ↔ PC","Switch ↔ Switch","PC ↔ Switch","Routeur ↔ Routeur"],c:2,e:"Le câble droit (straight-through) connecte des équipements de types différents dans la hiérarchie réseau."},
+{t:'t3',q:"Quelle est la norme de câblage structuré la plus utilisée pour les fils de couleur d'un câble Ethernet ?",o:["EIA/TIA-568A uniquement","EIA/TIA-568B uniquement","EIA/TIA-568A et 568B","IEEE 802.3"],c:2,e:"Les deux normes T568A et T568B sont utilisées. T568B est la plus répandue en Amérique du Nord. Un câble croisé utilise T568A d'un côté et T568B de l'autre."},
+
+// ── T4 : Adressage IP ──
+{t:'t4',q:"Combien de bits comporte une adresse IPv4 ?",img:"ipv4",o:["8 bits","16 bits","32 bits","64 bits"],c:2,e:"Une adresse IPv4 est codée sur 32 bits, répartis en 4 octets séparés par des points."},
+{t:'t4',q:"Quelle est la classe de l'adresse IP 192.168.10.6 ?",img:"ipClasses",o:["Classe A","Classe B","Classe C","Classe D"],c:2,e:"Classe C : 192.0.0.0 à 223.255.255.255. Masque par défaut /24 = 255.255.255.0."},
+{t:'t4',q:"Quelle est la classe de l'adresse IP 172.16.25.68 ?",img:"ipClasses",o:["Classe A","Classe B","Classe C","Classe D"],c:1,e:"Classe B : 128.0.0.0 à 191.255.255.255. Masque par défaut /16 = 255.255.0.0."},
+{t:'t4',q:"Dans 172.16.25.68 (classe B), quelle est la partie réseau ?",img:"ipv4",o:["172","172.16","172.16.25","172.16.25.68"],c:1,e:"En classe B, les 2 premiers octets (16 bits) forment l'ID réseau. Ici : 172.16. L'ID hôte est 25.68."},
+{t:'t4',q:"255.255.255.255 est :",img:"broadcast",o:["Une adresse de loopback","Une adresse de diffusion locale (broadcast)","Une adresse privée","L'adresse d'un routeur"],c:1,e:"255.255.255.255 = broadcast limité. Envoie un paquet à toutes les machines du réseau local, sans traverser les routeurs."},
+{t:'t4',q:"L'adresse binaire 11000000.10101000.00001010.00001000 correspond à :",img:"ipv4",o:["192.168.10.6","192.168.10.8","192.168.10.9","192.168.10.5"],c:1,e:"11000000=192, 10101000=168, 00001010=10, 00001000=8. Résultat : 192.168.10.8."},
+{t:'t4',q:"Quel est le masque par défaut de la classe A ?",img:"ipClasses",o:["255.255.255.0","255.255.0.0","255.0.0.0","0.0.0.0"],c:2,e:"Classe A : masque /8 = 255.0.0.0. 1 octet réseau, 3 octets hôtes = ~16 millions d'hôtes."},
+{t:'t4',q:"Le routeur doit posséder une IP dans chaque réseau qu'il interconnecte.",img:"router",o:["Vrai","Faux","Seulement pour IPv6","Selon le protocole"],c:0,e:"VRAI. Le routeur a une interface (et donc une IP) dans chaque réseau connecté pour recevoir et réexpédier les paquets."},
+{t:'t4',q:"Dans www.yahoo.fr, 'yahoo' est :",o:["Un protocole","Le nom de domaine","L'adresse IP","Le nom d'hôte"],c:1,e:"www = sous-domaine (hôte), yahoo = nom de domaine, .fr = TLD. L'ensemble forme le FQDN."},
+{t:'t4',q:"L'adresse 127.0.0.1 est appelée :",img:"ipv4",o:["Adresse de broadcast","Adresse de loopback (boucle locale)","Adresse APIPA","Adresse privée classe A"],c:1,e:"127.0.0.1 (loopback) pointe vers la machine elle-même. Elle permet de tester la pile TCP/IP locale sans carte réseau."},
+{t:'t4',q:"Un PC obtient automatiquement l'adresse 169.254.x.x. Qu'est-ce que cela signifie ?",img:"ipv4",o:["Le DHCP a bien fonctionné","Le PC n'a pas trouvé de serveur DHCP (adresse APIPA)","C'est une adresse de classe B privée","Le PC est connecté à Internet"],c:1,e:"169.254.x.x est une adresse APIPA (Automatic Private IP Addressing). Windows l'attribue automatiquement quand aucun serveur DHCP ne répond."},
+{t:'t4',q:"Quelle commande Windows affiche la configuration IP d'une machine ?",o:["ipconfig","netstat","ping","tracert"],c:0,e:"'ipconfig' (Windows) ou 'ifconfig/ip a' (Linux) affiche l'adresse IP, le masque et la passerelle d'une interface réseau."},
+{t:'t4',q:"Quelle commande teste la connectivité entre deux machines ?",o:["ipconfig","netstat","ping","tracert"],c:2,e:"'ping' envoie des paquets ICMP Echo Request et attend les Echo Reply. Une réponse confirme la connectivité."},
+
+// ── T5 : Sous-réseaux ──
+{t:'t5',q:"Qu'est-ce qu'un sous-réseau (subnet) ?",img:"subnetCalc",o:["Un réseau plus lent","Une division d'un réseau IP en plusieurs segments plus petits","Un type de câble","Un équipement réseau"],c:1,e:"Le sous-réseautage (subnetting) divise un réseau IP en sous-réseaux plus petits pour optimiser les adresses, améliorer la sécurité et réduire les domaines de broadcast."},
+{t:'t5',q:"Quelle formule donne le nombre de sous-réseaux possibles ?",img:"subnetCalc",o:["2^h - 2","2^n","2^h","n × 2"],c:1,e:"Nombre de sous-réseaux = 2^n, où n est le nombre de bits empruntés à la partie hôte du masque d'origine."},
+{t:'t5',q:"Quelle formule donne le nombre d'hôtes utilisables par sous-réseau ?",img:"subnetCalc",o:["2^n","2^h - 2","2^n - 2","2^h"],c:1,e:"Hôtes utilisables = 2^h - 2, où h = bits restants pour les hôtes. On soustrait 2 pour l'adresse réseau et le broadcast."},
+{t:'t5',q:"Pourquoi soustrait-on 2 au nombre d'hôtes calculé ?",img:"broadcast",o:["Pour la passerelle et le DNS","Pour l'adresse réseau et l'adresse de broadcast","Pour les switches et les hubs","Pour IPv4 et IPv6"],c:1,e:"La première adresse (tous bits hôtes à 0) = adresse réseau. La dernière (tous bits à 1) = broadcast. Ces deux adresses ne peuvent pas être attribuées à un hôte."},
+{t:'t5',q:"On divise 192.168.1.0/24 en /26. Combien de sous-réseaux obtient-on ?",img:"subnet",o:["2","4","8","16"],c:1,e:"Un /24 → /26 emprunte 2 bits (26-24=2). Nombre de S/R = 2^2 = 4. Chaque S/R a un bloc de 64 adresses."},
+{t:'t5',q:"Dans un réseau /26, combien d'hôtes utilisables par sous-réseau ?",img:"subnet",o:["64","62","30","126"],c:1,e:"/26 laisse 6 bits pour les hôtes. 2^6 - 2 = 64 - 2 = 62 hôtes utilisables."},
+{t:'t5',q:"Quelles sont les 4 plages du réseau 192.168.1.0/26 ?",img:"subnet",o:["0-63, 64-127, 128-191, 192-255","0-64, 65-128, 129-192, 193-256","0-62, 63-125, 126-188, 189-251","0-255 uniquement"],c:0,e:"Incrément = 256-192 = 64. Plages : .0-.63 · .64-.127 · .128-.191 · .192-.255. Chaque bloc de 64 adresses."},
+{t:'t5',q:"L'adresse 192.168.1.65 appartient à quel sous-réseau /26 ?",img:"subnet",o:["192.168.1.0/26","192.168.1.64/26","192.168.1.128/26","192.168.1.192/26"],c:1,e:"Incrément=64. Blocs: 0-63, 64-127, 128-191, 192-255. .65 est dans le 2e bloc → 192.168.1.64/26."},
+{t:'t5',q:"Dans un réseau /27, combien d'hôtes utilisables ?",img:"subnetCalc",o:["32","30","14","62"],c:1,e:"/27 : 5 bits hôtes. 2^5 - 2 = 32 - 2 = 30 hôtes utilisables par sous-réseau."},
+{t:'t5',q:"En découpant 192.168.1.0/24 en /27, combien de sous-réseaux obtient-on ?",img:"subnet27",o:["4","6","8","16"],c:2,e:"Bits empruntés : 27-24 = 3. Nombre de S/R = 2^3 = 8. Incrément = 32. Plages : .0-.31, .32-.63... .224-.255."},
+{t:'t5',q:"Dans un /28, quelle est la taille de chaque bloc d'adresses ?",img:"cidr",o:["8","16","32","64"],c:1,e:"/28 : masque = 255.255.255.240. Incrément = 256-240 = 16. Chaque bloc /28 contient 16 adresses (14 hôtes)."},
+{t:'t5',q:"Dans un /29, combien d'hôtes utilisables ?",img:"cidr",o:["8","6","4","14"],c:1,e:"/29 : 3 bits hôtes. 2^3 - 2 = 8 - 2 = 6 hôtes utilisables. Incrément = 8."},
+{t:'t5',q:"Quel est l'incrément (taille de bloc) pour le masque 255.255.255.192 ?",img:"subnetCalc",o:["192","64","128","32"],c:1,e:"Incrément = 256 - valeur du dernier octet du masque = 256 - 192 = 64."},
+{t:'t5',q:"Quel masque choisir pour avoir exactement 30 hôtes par sous-réseau ?",img:"cidr",o:["/26 (255.255.255.192)","/27 (255.255.255.224)","/28 (255.255.255.240)","/25 (255.255.255.128)"],c:1,e:"/27 → 2^5-2 = 30 hôtes. C'est le seul masque qui donne exactement 30 hôtes utilisables."},
+{t:'t5',q:"On divise 172.16.0.0/16 en /18. Combien de sous-réseaux ?",img:"subnetB",o:["2","4","8","16"],c:1,e:"Bits empruntés = 18-16 = 2. Sous-réseaux = 2^2 = 4. Chaque /18 contient 16 384 adresses (16 382 hôtes)."},
+{t:'t5',q:"Dans un réseau 172.16.0.0/18, combien d'hôtes utilisables ?",img:"subnetB",o:["16 384","16 382","65 534","4 096"],c:1,e:"/18 : 14 bits hôtes. 2^14 - 2 = 16 384 - 2 = 16 382 hôtes utilisables."},
+{t:'t5',q:"Quelles sont les plages des 4 sous-réseaux de 172.16.0.0/18 ?",img:"subnetB",o:["172.16.0.0, .64.0, .128.0, .192.0","172.16.0.0, .32.0, .64.0, .96.0","172.16.0.0, .64.0, .128.0 uniquement","172.16.0.0 à 172.16.255.255 uniquement"],c:0,e:"Incrément = 64 (3ème octet). Plages: .0.0-.63.255, .64.0-.127.255, .128.0-.191.255, .192.0-.255.255."},
+{t:'t5',q:"On veut 8 sous-réseaux dans un /16. Quel masque utiliser ?",img:"subnetCalc",o:["/18","/19","/17","/20"],c:1,e:"8 S/R = 2^3 → 3 bits empruntés. /16 + 3 = /19. Chaque /19 a 8 190 hôtes utilisables."},
+{t:'t5',q:"On divise 10.0.0.0/8 en /10. Combien de sous-réseaux ?",img:"subnetCalc",o:["2","4","8","16"],c:1,e:"Bits empruntés = 10-8 = 2. S/R = 2^2 = 4. Plages /10 : 10.0.0.0, 10.64.0.0, 10.128.0.0, 10.192.0.0."},
+{t:'t5',q:"L'adresse 192.168.1.130 est-elle dans le réseau 192.168.1.128/25 ?",img:"subnet",o:["Non, elle est hors plage","Oui, elle est dans ce sous-réseau","Seulement si le masque est /24","Impossible à déterminer"],c:1,e:"/25 → incrément=128. Plages: .0-.127 et .128-.255. .130 est dans la plage 128-255 → OUI, réseau 192.168.1.128/25."},
+{t:'t5',q:"Deux machines 192.168.10.33 et 192.168.10.62 avec masque /27 — sont-elles dans le même sous-réseau ?",img:"subnetCalc",o:["Oui","Non","Impossible à dire","Seulement si même passerelle"],c:0,e:"/27 → incrément=32. Plages: 0-31, 32-63, 64-95... .33 et .62 sont toutes deux dans la plage 32-63 → OUI, même S/R."},
+{t:'t5',q:"Quelle est l'adresse réseau de 172.16.45.200/20 ?",img:"cidr",o:["172.16.45.0","172.16.32.0","172.16.0.0","172.16.48.0"],c:1,e:"/20 dans le 3ème octet : masque=255.255.240.0, incrément=16. Blocs: .0.x, .16.x, .32.x, .48.x... 45 est dans le bloc 32-47 → réseau 172.16.32.0/20."},
+{t:'t5',q:"Quel masque choisir pour connecter 50 machines dans un sous-réseau ?",img:"cidr",o:["/25 (126 hôtes)","/26 (62 hôtes)","/27 (30 hôtes)","/28 (14 hôtes)"],c:1,e:"/26 donne 62 hôtes utilisables. C'est le masque le plus économe qui peut accueillir 50 machines (le /27 ne donne que 30)."},
+{t:'t5',q:"Quel masque choisir pour connecter 100 machines ?",img:"cidr",o:["/24 (254 hôtes)","/25 (126 hôtes)","/26 (62 hôtes)","/27 (30 hôtes)"],c:1,e:"/25 donne 126 hôtes utilisables. C'est le masque le plus économe qui peut accueillir 100 machines."},
+{t:'t5',q:"Quel masque choisir pour connecter 500 machines dans un sous-réseau ?",img:"cidr",o:["/24 (254 hôtes)","/23 (510 hôtes)","/22 (1022 hôtes)","/25 (126 hôtes)"],c:1,e:"/23 regroupe 2 blocs /24 → 512 adresses, 510 hôtes. C'est le masque le plus économe pour 500 machines."},
+{t:'t5',q:"Quel masque pour obtenir 16 sous-réseaux dans un /24 ?",img:"subnetCalc",o:["/26","/27","/28","/29"],c:2,e:"16 S/R = 2^4 → 4 bits empruntés. /24 + 4 = /28. Incrément = 16. Chaque /28 a 14 hôtes utilisables."},
+{t:'t5',q:"Quel masque utilise-t-on pour un lien point à point entre deux routeurs ?",img:"cidr",o:["/24","/28","/30","/32"],c:2,e:"/30 → 2 hôtes utilisables, parfait pour relier 2 routeurs. On économise les adresses : seulement 4 adresses utilisées."},
+{t:'t5',q:"Le 4ème octet du masque est 11000000 en binaire. Quel est ce masque en décimal ?",img:"subnetCalc",o:["255.255.255.128","255.255.255.192","255.255.255.224","255.255.255.240"],c:1,e:"11000000 = 128+64 = 192. Le masque est donc 255.255.255.192, correspondant à /26."},
+{t:'t5',q:"Pour le réseau 192.168.10.0 avec masque 255.255.255.192, quelle est l'adresse broadcast du 1er sous-réseau ?",img:"subnet",o:["192.168.10.63","192.168.10.64","192.168.10.255","192.168.10.127"],c:0,e:"Masque .192 → incrément=64. 1er S/R : 192.168.10.0 à 192.168.10.63. Broadcast = dernière adresse = .63."},
+
+// ── T6 : MAC & OSI ──
+{t:'t6',q:"Une adresse MAC est constituée de :",img:"mac",o:["4 octets","6 octets","8 octets","32 bits"],c:1,e:"Une adresse MAC est codée sur 6 octets (48 bits), notée en hexadécimal : 00-1A-2B-3C-4D-5E."},
+{t:'t6',q:"L'adresse MAC 00-99-00-11-00 est-elle valide ?",img:"mac",o:["Oui, c'est une adresse hexadécimale","Non, elle n'a que 5 octets","Oui, toutes les MAC hex sont valides","Non, les MAC commencent toujours par FF"],c:1,e:"Une MAC valide = 6 octets = 12 chiffres hex. '00-99-00-11-00' n'a que 5 groupes → invalide."},
+{t:'t6',q:"Différence entre adresse IP et adresse MAC :",img:"mac",o:["IP est physique, MAC est logique","MAC est physique (permanente), IP est logique (modifiable)","Elles sont identiques","MAC est utilisée par les routeurs"],c:1,e:"La MAC est gravée dans la NIC (physique, permanente). L'IP est assignée logiquement et peut changer via DHCP."},
+{t:'t6',q:"Combien de couches contient le modèle OSI ?",img:"osi",o:["4","5","7","8"],c:2,e:"Le modèle OSI comprend 7 couches : Physique (1), Liaison (2), Réseau (3), Transport (4), Session (5), Présentation (6), Application (7)."},
+{t:'t6',q:"À quelle couche OSI opère un switch ?",img:"osi",o:["Couche 1","Couche 2","Couche 3","Couche 4"],c:1,e:"Le switch opère en couche 2 (Liaison) via les adresses MAC. Il maintient une table MAC pour acheminer les trames."},
+{t:'t6',q:"À quelle couche OSI opère un routeur ?",img:"osi",o:["Couche 1","Couche 2","Couche 3","Couche 4"],c:2,e:"Le routeur opère en couche 3 (Réseau) via les adresses IP pour router les paquets entre réseaux."},
+{t:'t6',q:"À quelle couche OSI opère un hub ?",img:"osi",o:["Couche 1 — Physique","Couche 2 — Liaison","Couche 3 — Réseau","Couche 4 — Transport"],c:0,e:"Le hub opère en couche 1 (Physique). Il régénère le signal électrique sur tous ses ports sans aucune intelligence."},
+{t:'t6',q:"Le modèle TCP/IP comporte combien de couches ?",img:"osi",o:["3","4","5","7"],c:1,e:"TCP/IP (modèle DoD) = 4 couches : Accès réseau, Internet, Transport, Application."},
+{t:'t6',q:"Quelle est la PDU (unité de données) de la couche Transport OSI ?",img:"osi",o:["Trame","Paquet","Segment","Bit"],c:2,e:"Couche Transport (4) → Segment (TCP) ou Datagramme (UDP). Couche Réseau → Paquet. Couche Liaison → Trame. Couche Physique → Bit."},
+{t:'t6',q:"Quelle est la PDU de la couche Réseau OSI ?",img:"osi",o:["Trame","Paquet","Segment","Bit"],c:1,e:"Couche Réseau (3) → Paquet. C'est l'unité traitée par les routeurs, contenant les adresses IP source et destination."},
+{t:'t6',q:"Quel protocole de couche 2 est utilisé dans les réseaux Wi-Fi ?",img:"osi",o:["Ethernet (IEEE 802.3)","Wi-Fi (IEEE 802.11)","PPP","HDLC"],c:1,e:"Les réseaux Wi-Fi utilisent le standard IEEE 802.11 en couche 2. Ethernet (802.3) est pour les réseaux filaires."},
+
+// ── T7 : Protocoles & services ──
+{t:'t7',q:"Quel protocole résout les IP en adresses MAC ?",img:"mac",o:["DNS","DHCP","ARP","ICMP"],c:2,e:"ARP (Address Resolution Protocol) envoie un broadcast 'Qui a cette IP ?' et reçoit l'adresse MAC correspondante."},
+{t:'t7',q:"Quel protocole distribue automatiquement les adresses IP ?",img:"dhcp",o:["DNS","ARP","DHCP","FTP"],c:2,e:"DHCP (Dynamic Host Configuration Protocol) attribue dynamiquement IP, masque, passerelle et DNS via le processus DORA."},
+{t:'t7',q:"Quel protocole traduit les noms de domaine en IP ?",img:"dns",o:["DHCP","ARP","SMTP","DNS"],c:3,e:"DNS (Domain Name System) = l'annuaire d'Internet. Il résout google.com en 142.250.74.46."},
+{t:'t7',q:"Quel protocole est utilisé par la commande ping ?",o:["TCP","UDP","ICMP","ARP"],c:2,e:"ICMP envoie des Echo Request et attend des Echo Reply. Ping teste la connectivité et mesure la latence."},
+{t:'t7',q:"Différence principale entre TCP et UDP ?",img:"tcpUdp",o:["TCP est plus rapide","TCP est fiable (connexion + ACK), UDP est rapide sans garantie","UDP utilise des IP, TCP non","TCP est sans fil"],c:1,e:"TCP garantit la livraison (connexion, acquittements, retransmission). UDP est plus rapide sans garantie — streaming, DNS, VoIP."},
+{t:'t7',q:"Port par défaut de HTTP ?",img:"ports",o:["21","22","80","443"],c:2,e:"HTTP = port 80. HTTPS = 443. FTP = 21. SSH = 22. Telnet = 23."},
+{t:'t7',q:"Quel protocole envoie les e-mails ?",img:"ports",o:["POP3","IMAP","SMTP","FTP"],c:2,e:"SMTP (Simple Mail Transfer Protocol, port 25) envoie les e-mails. POP3 (port 110) et IMAP (port 143) les reçoivent."},
+{t:'t7',q:"Quelle est la différence entre POP3 et IMAP ?",o:["POP3 est plus sécurisé qu'IMAP","POP3 télécharge et supprime les mails du serveur, IMAP les synchronise","IMAP est obsolète","Ce sont deux noms du même protocole"],c:1,e:"POP3 télécharge les mails puis les supprime du serveur. IMAP synchronise : les mails restent sur le serveur et sont accessibles depuis plusieurs appareils."},
+{t:'t7',q:"Sur quel port Telnet fonctionne-t-il ?",img:"ports",o:["21","22","23","25"],c:2,e:"Telnet = port 23. Il transmet tout en clair (non sécurisé). SSH (port 22) est son remplaçant sécurisé."},
+{t:'t7',q:"Quel protocole synchronise l'heure des machines d'un réseau ?",o:["DHCP","NTP","DNS","SNMP"],c:1,e:"NTP (Network Time Protocol, port 123) synchronise les horloges des machines d'un réseau. Crucial pour les logs et l'authentification."},
+{t:'t7',q:"Que signifie l'acronyme TCP/IP ?",img:"tcpUdp",o:["Transfer Control Protocol / Internet Program","Transmission Control Protocol / Internet Protocol","Technical Computer Protocol / Internet Process","Terminal Control Packet / IP"],c:1,e:"TCP = Transmission Control Protocol, IP = Internet Protocol. La suite TCP/IP est le fondement des communications Internet."},
+{t:'t7',q:"Pour connecter un LAN à Internet, il faut :",o:["Un hub uniquement","Un FAI (Fournisseur d'Accès Internet)","Un concentrateur","Un site web"],c:1,e:"Un FAI est indispensable pour accéder à Internet. Il fournit la connexion physique et l'adresse IP publique."},
+{t:'t7',q:"Quel protocole sécurisé remplace Telnet pour l'administration distante ?",img:"ports",o:["FTP","RDP","SSH","SMTP"],c:2,e:"SSH (Secure Shell, port 22) chiffre entièrement la session. Telnet transmet tout en clair → à éviter absolument."},
+
+// ── T8 : Sécurité ──
+{t:'t8',q:"Qu'est-ce qu'un pare-feu (firewall) ?",o:["Un antivirus sur les postes","Un équipement/logiciel filtrant le trafic réseau selon des règles","Un protocole de chiffrement","Un type de switch sécurisé"],c:1,e:"Un firewall contrôle le trafic entrant et sortant selon des règles définies (IP, ports, protocoles). C'est la première ligne de défense."},
+{t:'t8',q:"Qu'est-ce qu'un VPN ?",img:"vpn",o:["Un réseau local sans fil","Un réseau privé virtuel créant un tunnel sécurisé sur Internet","Un protocole de routage","Un type d'adresse IP"],c:1,e:"Un VPN (Virtual Private Network) chiffre les communications et crée un tunnel sécurisé sur un réseau public."},
+{t:'t8',q:"Quel mode de transmission permet l'envoi et la réception simultanés ?",img:"duplex",o:["Simplex","Half-duplex","Full-duplex","Multiplex"],c:2,e:"Full-duplex = communication bidirectionnelle simultanée (téléphone). Half-duplex alterne (talkie-walkie). Simplex = un seul sens."},
+{t:'t8',q:"Qu'est-ce que la bande passante ?",o:["Le délai de transmission","La capacité maximale de données transmises par unité de temps","Le nombre de ports d'un switch","La longueur maximale d'un câble"],c:1,e:"La bande passante (bandwidth) = capacité maximale du réseau, exprimée en bits/seconde (Mbps, Gbps)."},
+{t:'t8',q:"Qu'est-ce qu'une attaque par force brute ?",img:"security",o:["Un virus qui détruit les fichiers","Une tentative de deviner un mot de passe en essayant toutes les combinaisons","Une attaque physique sur les câbles","Une saturation du réseau par des requêtes"],c:1,e:"L'attaque par force brute (brute force) consiste à tester systématiquement toutes les combinaisons possibles pour trouver un mot de passe ou une clé."},
+{t:'t8',q:"Quelle est la différence entre un virus et un ver informatique ?",img:"security",o:["Ce sont des synonymes","Un virus infecte des fichiers, un ver se propage seul via le réseau sans fichier hôte","Un ver est plus dangereux qu'un virus","Un virus vient d'Internet, un ver d'une clé USB"],c:1,e:"Un virus s'attache à un fichier hôte. Un ver (worm) se propage de façon autonome via le réseau, sans nécessiter d'action de l'utilisateur."},
+{t:'t8',q:"Qu'est-ce que le phishing ?",img:"security",o:["Un type de scan réseau","Une technique de fraude imitant des entités légitimes pour voler des informations","Un protocole de sécurité","Un pare-feu matériel"],c:1,e:"Le phishing = hameçonnage. Des attaquants créent de faux sites/mails imitant des banques, réseaux sociaux, etc., pour voler identifiants et mots de passe."},
+{t:'t8',q:"Qu'est-ce qu'un IDS (Intrusion Detection System) ?",o:["Un antivirus amélioré","Un système qui surveille le réseau et détecte les activités suspectes","Un type de firewall","Un protocole de chiffrement"],c:1,e:"Un IDS surveille le trafic réseau et détecte les intrusions ou comportements suspects. Il génère des alertes (contrairement à un IPS qui bloque activement)."},
+{t:'t8',q:"Quel protocole sécurise les transactions bancaires en ligne ?",img:"ports",o:["HTTP","FTP","HTTPS (TLS/SSL)","Telnet"],c:2,e:"HTTPS (port 443) utilise TLS/SSL pour chiffrer les communications. C'est indispensable pour toute transaction sensible en ligne."},
+{t:'t8',q:"Qu'est-ce qu'une attaque Man-in-the-Middle (MitM) ?",img:"security",o:["Un virus qui bloque l'ordinateur","Un attaquant qui s'interpose entre deux correspondants pour intercepter/modifier le trafic","Une attaque par déni de service","Un type de phishing"],c:1,e:"Dans une attaque MitM, l'attaquant se positionne entre deux hôtes communicants, pouvant intercepter, lire et modifier les échanges à leur insu."},
+
+// ── T9 : Internet & architecture ──
+{t:'t9',q:"Que signifie URL ?",img:"internetDNS",o:["Universal Resource Locator","Uniform Resource Locator","Universal Router Link","Unified Resource Label"],c:1,e:"URL = Uniform Resource Locator. C'est l'adresse complète d'une ressource sur Internet : protocole + domaine + chemin."},
+{t:'t9',q:"Dans https://www.eneam.bj/cours, quel est le TLD ?",img:"internetDNS",o:["https","www","eneam",".bj"],c:3,e:".bj est le TLD (Top-Level Domain) = extension de domaine. Il désigne le Bénin. 'eneam' est le nom de domaine, 'www' est le sous-domaine."},
+{t:'t9',q:"À quoi sert un enregistrement DNS de type MX ?",img:"internetDNS",o:["Associer un nom à une IPv4","Indiquer le serveur de messagerie d'un domaine","Créer un alias vers un autre nom","Résolution IP inverse"],c:1,e:"Un enregistrement MX (Mail eXchange) indique le(s) serveur(s) de mail responsables de recevoir les e-mails pour un domaine."},
+{t:'t9',q:"Qu'est-ce qu'un enregistrement DNS CNAME ?",img:"internetDNS",o:["Associe un nom à une IPv4","Indique le serveur mail","Crée un alias d'un nom vers un autre nom","Résolution inverse IP→nom"],c:2,e:"CNAME (Canonical Name) crée un alias. Ex: www.example.com peut pointer vers example.com via un enregistrement CNAME."},
+{t:'t9',q:"Qu'est-ce que le TTL dans un enregistrement DNS ?",img:"internetDNS",o:["Le temps de transmission d'un paquet","La durée pendant laquelle un enregistrement DNS est mis en cache","La longueur maximale d'un nom de domaine","Le nombre de requêtes DNS autorisées"],c:1,e:"TTL (Time To Live) indique combien de temps (en secondes) les résolveurs DNS gardent l'enregistrement en cache avant de recontacter le serveur autoritaire."},
+{t:'t9',q:"Quelle est la différence entre DNS récursif et DNS itératif ?",img:"dns",o:["Ce sont deux noms du même processus","Le récursif fait tout le travail pour le client, l'itératif indique juste le prochain serveur","L'itératif est plus rapide","Le récursif n'utilise pas de cache"],c:1,e:"DNS récursif : le résolveur fait toutes les requêtes à la place du client jusqu'à obtenir la réponse finale. DNS itératif : chaque serveur répond avec le serveur suivant à contacter."},
+{t:'t9',q:"Différence entre réseau client-serveur et P2P ?",img:"architecture",o:["Le P2P est plus lent","Client-serveur = serveur centralisé, P2P = chaque nœud est client ET serveur","Client-serveur est sans fil","P2P nécessite un serveur central"],c:1,e:"Client-serveur = architecture centralisée avec des serveurs dédiés. P2P = décentralisé, chaque machine peut être à la fois client et serveur."},
+{t:'t9',q:"Qu'est-ce qu'une DMZ (zone démilitarisée) réseau ?",o:["Un réseau militaire classifié","Une zone réseau isolée entre Internet et le LAN interne, hébergeant les serveurs publics","Un type de VPN","Un sous-réseau sans routeur"],c:1,e:"La DMZ est un segment réseau isolé qui expose les serveurs publics (web, mail) à Internet tout en protégeant le LAN interne. Elle est séparée par des firewalls."},
+{t:'t9',q:"Qu'est-ce que la redondance réseau ?",o:["Un réseau avec trop de câbles","La présence de liens et équipements de secours pour assurer la continuité en cas de panne","Un protocole de sauvegarde","Un type de topologie"],c:1,e:"La redondance = duplication des liens et équipements critiques. Si un composant tombe en panne, le trafic bascule automatiquement sur le chemin de secours."},
+{t:'t9',q:"Qu'est-ce qu'un backbone réseau ?",o:["Le câble principal d'un bus","L'infrastructure centrale à haute capacité qui interconnecte les réseaux entre eux","Un type de routeur","Le serveur principal d'un LAN"],c:1,e:"Le backbone (épine dorsale) est l'infrastructure centrale à très haute capacité d'un réseau. Il interconnecte les réseaux régionaux et locaux entre eux."},
+{t:'t9',q:"Quelle topologie réseau est la plus utilisée dans les LAN modernes ?",img:"star",o:["Bus","Anneau","Maille","Étoile"],c:3,e:"La topologie en étoile est dominante car elle est simple à gérer, à dépanner et à étendre via un switch central."},
+{t:'t9',q:"Dans une topologie en bus, si le câble principal est rompu :",img:"bus",o:["Seul le poste le plus proche est affecté","Tout le réseau tombe en panne","Le signal est redirigé","Les switches compensent"],c:1,e:"Dans un bus, tous les postes partagent un même câble. Sa rupture ou ses terminateurs défaillants coupent tout le réseau."},
+];
+
+// ══════════════════════════════════════════════
+// ÉTAT DE L'APPLICATION
+// ══════════════════════════════════════════════
+let activeTheme = null; // 't1'..'t9' ou 'all'
+let activeQ = [];       // questions de la session
+let answers = [];
+let cur = 0, correct = 0, wrong = 0;
+
+// ══════════════════════════════════════════════
+// INITIALISATION
+// ══════════════════════════════════════════════
+function buildHome() {
+  const grid = document.getElementById('theme-grid');
+  grid.innerHTML = '';
+  THEMES.forEach(th => {
+    const count = BANK.filter(q=>q.t===th.id).length;
+    const div = document.createElement('div');
+    div.className = 'tc';
+    div.style.cssText = `--tc:${th.color}`;
+    div.innerHTML = `<span class="ico">${th.icon}</span>
+      <div class="tname" style="color:${th.color}">${th.name}</div>
+      <div class="tcount">${count} questions</div>
+      <div class="tbar" style="background:${th.color}"></div>`;
+    div.addEventListener('click', () => startTheme(th.id));
+    grid.appendChild(div);
+  });
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════════════
+// DÉMARRAGE QCM
+// ══════════════════════════════════════════════
+function startTheme(tid) {
+  activeTheme = tid;
+  activeQ = BANK.filter(q=>q.t===tid);
+  launchQuiz();
+}
+
+function startAll() {
+  activeTheme = 'all';
+  activeQ = [...BANK];
+  launchQuiz();
+}
+
+function launchQuiz() {
+  answers = new Array(activeQ.length).fill(null);
+  cur = 0; correct = 0; wrong = 0;
+  // Badge thème
+  const badge = document.getElementById('theme-badge');
+  if (activeTheme === 'all') {
+    badge.textContent = '🎯 Toutes questions';
+    badge.style.cssText = 'border-color:#a78bfa;color:#a78bfa;background:rgba(167,139,250,.1)';
+    document.querySelector('.qcard::before') && (document.querySelector('.qcard').style.setProperty('--tc','#a78bfa'));
+  } else {
+    const th = THEMES.find(t=>t.id===activeTheme);
+    badge.textContent = `${th.icon} ${th.name}`;
+    badge.style.cssText = `border-color:${th.color};color:${th.color};background:${th.color}15`;
+  }
+  show('s-quiz');
+  render();
+}
+
+// ══════════════════════════════════════════════
+// RENDU DE LA QUESTION
+// ══════════════════════════════════════════════
+function render() {
+  const q = activeQ[cur], n = cur+1, total = activeQ.length;
+  const pct = Math.round((n-1)/total*100);
+
+  document.getElementById('pbar').style.width = pct+'%';
+  document.getElementById('ptext').textContent = `${n}/${total}`;
+  document.getElementById('plabel-l').textContent = `Question ${n}`;
+  document.getElementById('plabel-r').textContent = pct+'%';
+  document.getElementById('qnum').textContent = `Q ${String(n).padStart(2,'0')} / ${total}`;
+  document.getElementById('qtext').textContent = q.q;
+
+  const imgDiv = document.getElementById('qimg');
+  if (q.img && SVG[q.img]) { imgDiv.innerHTML = SVG[q.img]; imgDiv.style.display='flex'; }
+  else { imgDiv.innerHTML=''; imgDiv.style.display='none'; }
+
+  const opts = document.getElementById('opts');
+  opts.innerHTML = '';
+  q.o.forEach((opt,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ob';
+    btn.innerHTML = `<span class="ol">${'ABCD'[i]}</span>${opt}`;
+    btn.disabled = answers[cur] !== null;
+    if (answers[cur] !== null) {
+      if (i===q.c) btn.classList.add('correct');
+      else if (i===answers[cur] && answers[cur]!==q.c) btn.classList.add('wrong');
+    }
+    btn.addEventListener('click',()=>selectAnswer(i));
+    opts.appendChild(btn);
+  });
+
+  const expl = document.getElementById('expl');
+  expl.textContent = '💡 '+q.e;
+  expl.className = 'expl'+(answers[cur]!==null?' show':'');
+
+  document.getElementById('sc').textContent = correct;
+  document.getElementById('sw').textContent = wrong;
+  document.getElementById('sr').textContent = total - correct - wrong;
+  document.getElementById('btn-prev').style.opacity = cur===0?'.3':'1';
+  document.getElementById('btn-prev').disabled = cur===0;
+  document.getElementById('btn-next').textContent = cur===total-1?'Voir résultats →':'Suivante →';
+}
+
+function selectAnswer(i) {
+  if (answers[cur]!==null) return;
+  answers[cur] = i;
+  if (i===activeQ[cur].c) correct++; else wrong++;
+  render();
+}
+
+function nextQ() {
+  if (cur===activeQ.length-1) { showResult(); return; }
+  cur++; render();
+}
+
+function prevQ() { if (cur>0) { cur--; render(); } }
+
+// ══════════════════════════════════════════════
+// RÉSULTATS
+// ══════════════════════════════════════════════
+function showResult() {
+  show('s-result');
+  const pct = Math.round(correct/activeQ.length*100);
+  const chip = activeTheme==='all'?'🎯 QCM Complet':`${THEMES.find(t=>t.id===activeTheme).icon} ${THEMES.find(t=>t.id===activeTheme).name}`;
+  document.getElementById('res-chip').textContent = chip;
+  document.getElementById('res-score').textContent = `${correct}/${activeQ.length}`;
+  document.getElementById('res-pct').textContent = `${pct}% — ${wrong} erreurs — ${activeQ.length-correct-wrong} sans réponse`;
+  const m = pct>=90?'🏆 Excellent ! Maîtrise parfaite':pct>=75?'🎯 Très bien !':pct>=60?'📚 Bien — Continuez à réviser':pct>=50?'⚡ Moyen — Revoyez les notions clés':'🔄 Insuffisant — Reprenez les bases';
+  document.getElementById('res-mention').textContent = m;
+
+  // Scores par thème
+  const container = document.getElementById('theme-scores');
+  container.innerHTML = '';
+  const themesToShow = activeTheme==='all' ? THEMES : THEMES.filter(t=>t.id===activeTheme);
+
+  themesToShow.forEach(th => {
+    const thQ = activeQ.filter(q=>q.t===th.id);
+    if (!thQ.length) return;
+    const thAns = thQ.map(q=>{ const idx=activeQ.indexOf(q); return {q,a:answers[idx]}; });
+    const thCorrect = thAns.filter(x=>x.a===x.q.c).length;
+    const thPct = Math.round(thCorrect/thQ.length*100);
+    const barColor = thPct>=75?'#10b981':thPct>=50?'#f59e0b':'#ef4444';
+    const card = document.createElement('div');
+    card.className = 'ts-card';
+    card.innerHTML = `
+      <div class="ts-head">
+        <span class="ts-ico">${th.icon}</span>
+        <span class="ts-name">${th.name}</span>
+      </div>
+      <div class="ts-bar-bg"><div class="ts-bar" style="width:${thPct}%;background:${barColor}"></div></div>
+      <div class="ts-nums">${thCorrect}/${thQ.length} correctes</div>
+      <div class="ts-pct" style="color:${barColor}">${thPct}%</div>`;
+    container.appendChild(card);
+  });
+}
+
+function goHome() { show('s-home'); }
+function retryQuiz() {
+  if (activeTheme==='all') startAll();
+  else startTheme(activeTheme);
+}
+
+// ══════════════════════════════════════════════
+// LANCEMENT
+// ══════════════════════════════════════════════
+buildHome();
+</script>
+</body>
+</html>
