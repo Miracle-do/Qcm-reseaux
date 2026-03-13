@@ -369,6 +369,665 @@
   <header>
     <div class="tag">// QCM — Préparation Contrôle</div>
     <h1>Réseaux Informatiques</h1>
+    <p class="subtitle">50 questions · types de réseaux · équipements · adressage IP · protocoles · ENEAM</p>
+  </header>
+
+  <div id="quiz-section">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="progress-label">
+      <span id="progress-text">Question 1 / 50</span>
+      <span id="progress-pct">0%</span>
+    </div>
+
+    <div class="score-panel">
+      <div class="score-box correct"><div class="num" id="sc-correct">0</div><div class="lbl">✓ Correct</div></div>
+      <div class="score-box wrong"><div class="num" id="sc-wrong">0</div><div class="lbl">✗ Faux</div></div>
+      <div class="score-box total"><div class="num" id="sc-rem">50</div><div class="lbl">Restantes</div></div>
+    </div>
+
+    <div class="question-card" id="q-card">
+      <div class="q-number" id="q-num">QUESTION 01</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="options" id="options"></div>
+      <div class="explanation" id="explanation"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" id="btn-prev" onclick="prevQ()">← Précédente</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()">Suivante →</button>
+    </div>
+  </div>
+
+  <div id="result-screen">
+    <div class="tag">// Résultats finaux</div>
+    <div class="result-score" id="res-score">0/50</div>
+    <div class="result-mention" id="res-mention"></div>
+    <div class="result-detail" id="res-detail"></div>
+    <button class="btn-restart" onclick="restart()">↺ Recommencer</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+
+  // ═══ TYPES DE RÉSEAUX ═══
+  {q:"Un réseau qui relie les ordinateurs d'une même école (comme l'ENEAM) est de type :",o:["MAN","WAN","LAN","PAN"],c:2,e:"Un LAN (Local Area Network) relie des ordinateurs sur une zone géographique réduite : un bâtiment, un campus. C'est le cas d'un réseau scolaire."},
+  {q:"Le réseau Internet est de type :",o:["LAN","MAN","WAN","PAN"],c:2,e:"Le WAN (Wide Area Network) couvre de très grandes distances (pays, continents). Internet est le plus grand WAN existant."},
+  {q:"Un réseau composé d'un PC, d'un smartphone, d'une imprimante et d'une tablette reliés en Wi-Fi est de type :",o:["LAN","MAN","WAN","PAN"],c:3,e:"Un PAN (Personal Area Network) est un réseau très court rayon (quelques mètres) regroupant les appareils personnels d'un même utilisateur."},
+  {q:"Un réseau qui relie les bureaux d'une entreprise dans plusieurs quartiers d'une même ville est de type :",o:["PAN","LAN","MAN","WAN"],c:2,e:"Un MAN (Metropolitan Area Network) couvre une zone métropolitaine (ville ou agglomération), intermédiaire entre LAN et WAN."},
+  {q:"Un réseau informatique est :",o:["Un ensemble d'ordinateurs reliés entre eux pour partager des ressources","Un seul ordinateur très puissant","Un logiciel de communication","Un câble reliant deux écrans"],c:0,e:"Un réseau informatique est un ensemble d'équipements informatiques interconnectés, capables de partager des données et des ressources matérielles ou logicielles."},
+
+  // ═══ ÉQUIPEMENTS RÉSEAU ═══
+  {q:"Un hub est :",o:["Un commutateur intelligent","Un répéteur multi-ports qui diffuse à tous les ports","Un routeur sans fil","Un équipement de couche 3"],c:1,e:"Un hub (concentrateur) reçoit un signal et le réémet sur TOUS ses ports sans distinction. Il opère à la couche 1 du modèle OSI."},
+  {q:"Un switch (commutateur) diffère du hub car il :",o:["Envoie les données à tous les ports","Route les paquets entre réseaux","Envoie les données uniquement au port destinataire","Attribue les adresses IP"],c:2,e:"Un switch apprend les adresses MAC et envoie les trames uniquement au port concerné. Il opère à la couche 2 — bien plus efficace qu'un hub."},
+  {q:"Quel équipement permet de relier deux réseaux IP distincts et de choisir le meilleur chemin ?",o:["Hub","Switch","Modem","Routeur"],c:3,e:"Le routeur (couche 3) interconnecte des réseaux différents. Il utilise les adresses IP et des tables de routage pour acheminer les paquets."},
+  {q:"EQUIP 1 est un hub. Lequel de ces termes ne désigne PAS un hub ?",o:["Répéteur multi-ports","Concentrateur","Commutateur","Équipement réseau informatique"],c:2,e:"Un commutateur (switch) est différent d'un hub : il est intelligent et sélectif. Hub, répéteur multi-ports et concentrateur sont des synonymes."},
+  {q:"Si le switch central (EQUIP 2) d'un réseau tombe en panne, que se passe-t-il ?",o:["Seul le switch est affecté","Les machines reliées à ce switch cessent de communiquer","Le routeur prend le relais automatiquement","Rien ne change"],c:1,e:"Dans une topologie en étoile, si le nœud central (switch) tombe, toutes les machines qui en dépendent perdent la communication. C'est le point unique de défaillance."},
+  {q:"Quel équipement réseau ne nécessite PAS d'adresse IP pour fonctionner ?",o:["Routeur","Switch / Hub","Serveur","PC"],c:1,e:"Un switch ou un hub de base opèrent aux couches 1 et 2 avec des adresses MAC. Ils n'ont pas besoin d'adresse IP pour commuter les trames (sauf les switches managés)."},
+  {q:"Dans Cisco Packet Tracer, un symbole représentant une antenne avec une boîte rectangulaire désigne généralement :",o:["Un routeur","Un switch","Un point d'accès Wi-Fi","Un serveur DNS"],c:2,e:"Dans Cisco Packet Tracer, le point d'accès (Access Point) est représenté par un équipement avec une antenne. Il diffuse un signal Wi-Fi pour connecter les appareils sans fil."},
+  {q:"Une carte NIC (Network Interface Card) est :",o:["Un type de câble réseau","Une carte réseau permettant à un PC de se connecter au réseau","Un protocole de sécurité","Un type de routeur"],c:1,e:"La carte NIC (carte réseau) est un composant matériel intégré à la carte mère ou en extension, qui permet à l'ordinateur de communiquer sur un réseau. Elle possède une adresse MAC unique."},
+
+  // ═══ CÂBLES & CONNEXIONS ═══
+  {q:"Quel type de câble utilise-t-on pour relier deux PC directement (sans switch) ?",o:["Câble droit (straight-through)","Câble croisé (cross-over)","Câble console","Fibre optique"],c:1,e:"Un câble croisé (cross-over) est utilisé pour connecter deux équipements de même type (PC-PC, switch-switch). Le câble droit relie des équipements différents (PC-switch)."},
+  {q:"Quel câble relie un PC à un switch dans un réseau standard ?",o:["Câble croisé","Câble coaxial","Câble droit (straight-through)","Câble console"],c:2,e:"Le câble droit (straight-through) est utilisé pour connecter des équipements de type différent : PC vers switch, switch vers routeur."},
+  {q:"Si l'ordre des fils de couleur dans un connecteur RJ45 est différent aux deux extrémités, le câble est probablement :",o:["Un câble droit","Un câble croisé","Un câble console","Un câble coaxial"],c:1,e:"Dans un câble croisé, les paires TX et RX sont inversées entre les deux extrémités (normes T568A d'un côté, T568B de l'autre). C'est cela qui permet la communication directe entre équipements identiques."},
+  {q:"Le connecteur standard utilisé pour les câbles réseau Ethernet cuivre est :",o:["RJ11","RJ45","BNC","SC"],c:1,e:"RJ45 est le connecteur standard pour les câbles Ethernet (paires torsadées). RJ11 est pour le téléphone, BNC pour le coaxial, SC pour la fibre optique."},
+
+  // ═══ ADRESSAGE IP ═══
+  {q:"Combien de bits comporte une adresse IPv4 ?",o:["8 bits","16 bits","32 bits","64 bits"],c:2,e:"Une adresse IPv4 est codée sur 32 bits, répartis en 4 octets séparés par des points. Ex : 192.168.10.5"},
+  {q:"Quelle est la classe de l'adresse IP 192.168.10.6 ?",o:["Classe A","Classe B","Classe C","Classe D"],c:2,e:"Classe C : de 192.0.0.0 à 223.255.255.255. Le masque par défaut est 255.255.255.0. 192.168.x.x est une plage privée de classe C."},
+  {q:"Quelle est la classe de l'adresse IP 172.16.25.68 ?",o:["Classe A","Classe B","Classe C","Classe D"],c:1,e:"Classe B : de 128.0.0.0 à 191.255.255.255. Masque par défaut : 255.255.0.0. 172.16.0.0 à 172.31.255.255 est la plage privée classe B."},
+  {q:"Dans l'adresse IP 172.16.25.68 avec un masque par défaut de classe B, quelle est la partie réseau ?",o:["172","172.16","172.16.25","172.16.25.68"],c:1,e:"En classe B, les 2 premiers octets (16 bits) identifient le réseau. Ici l'ID réseau est 172.16 et l'ID hôte est 25.68."},
+  {q:"255.255.255.255 est :",o:["Une adresse de loopback","Une adresse de diffusion locale (broadcast)","Une adresse privée","L'adresse d'un routeur"],c:1,e:"255.255.255.255 est l'adresse de diffusion limitée (broadcast local). Elle envoie un message à toutes les machines du réseau local sans connaître l'adresse réseau."},
+  {q:"Quel masque de sous-réseau correspond à /24 en notation CIDR ?",o:["255.0.0.0","255.255.0.0","255.255.255.0","255.255.255.128"],c:2,e:"/24 = 24 bits à 1 dans le masque = 255.255.255.0. Ce masque permet 254 hôtes utilisables (256 - 2 : adresse réseau et broadcast exclus)."},
+  {q:"Dans un réseau 192.168.10.0/24, quelle est l'adresse de diffusion ?",o:["192.168.10.0","192.168.10.1","192.168.10.254","192.168.10.255"],c:3,e:"L'adresse de broadcast est la dernière adresse du réseau (tous les bits hôtes à 1). Pour /24 : le dernier octet est 255."},
+  {q:"Combien de machines peut-on brancher dans un réseau en /24 ?",o:["256","254","255","128"],c:1,e:"Un /24 donne 256 adresses. On soustrait l'adresse réseau (x.x.x.0) et le broadcast (x.x.x.255) : reste 254 hôtes utilisables."},
+  {q:"L'adresse IP 11000000.10101000.00001010.00001000 en binaire correspond en décimal à :",o:["192.168.10.6","192.168.10.8","192.168.10.9","192.168.10.5"],c:1,e:"11000000=192, 10101000=168, 00001010=10, 00001000=8. L'adresse est donc 192.168.10.8."},
+  {q:"Quel est le masque par défaut d'un réseau de classe A ?",o:["255.255.255.0","255.255.0.0","255.0.0.0","0.0.0.0"],c:2,e:"Classe A : masque par défaut 255.0.0.0 (/8). 1 octet pour le réseau, 3 octets pour les hôtes (16 millions d'hôtes possibles)."},
+  {q:"Le routeur doit posséder une adresse IP dans chaque réseau IP qu'il interconnecte.",o:["Vrai","Faux","Cela dépend du protocole","Seulement pour IPv6"],c:0,e:"VRAI. Le routeur a une interface (et donc une adresse IP) dans chaque réseau qu'il connecte. C'est ce qui lui permet de recevoir et réexpédier les paquets entre ces réseaux."},
+  {q:"Dans l'adresse www.yahoo.fr, 'yahoo' est :",o:["Un protocole","Le nom de domaine","L'adresse IP","Le nom d'hôte"],c:1,e:"Dans www.yahoo.fr : 'www' est le nom d'hôte (sous-domaine), 'yahoo' est le nom de domaine, '.fr' est l'extension (TLD). L'ensemble forme le FQDN."},
+
+  // ═══ ADRESSES MAC ═══
+  {q:"Une adresse MAC est constituée de :",o:["4 octets","6 octets","8 octets","32 bits"],c:1,e:"Une adresse MAC (Media Access Control) est codée sur 6 octets (48 bits), généralement notée en hexadécimal : 00-1A-2B-3C-4D-5E."},
+  {q:"L'adresse MAC 00-99-00-11-00 est-elle une adresse valide ?",o:["Oui, car elle est en hexadécimal","Non, elle ne constitue pas une adresse MAC valide car elle n'a que 5 octets","Oui, toutes les adresses hexadécimales sont valides","Non, les MAC commencent toujours par FF"],c:1,e:"Une adresse MAC valide comporte exactement 6 octets (12 chiffres hexa). '00-99-00-11-00' n'a que 5 groupes, donc 5 octets — c'est invalide."},
+  {q:"Quelle est la différence entre une adresse IP et une adresse MAC ?",o:["L'adresse IP est physique, la MAC est logique","L'adresse MAC est physique et permanente, l'IP est logique et peut changer","Elles sont identiques","L'adresse MAC est utilisée par les routeurs"],c:1,e:"L'adresse MAC est gravée dans la carte réseau (adresse physique, permanente). L'adresse IP est assignée logiquement et peut être modifiée ou attribuée par DHCP."},
+
+  // ═══ MODÈLE OSI & TCP/IP ═══
+  {q:"Combien de couches contient le modèle OSI ?",o:["4","5","7","8"],c:2,e:"Le modèle OSI comprend 7 couches : Physique (1), Liaison (2), Réseau (3), Transport (4), Session (5), Présentation (6), Application (7)."},
+  {q:"À quelle couche OSI opère un switch ?",o:["Couche 1 — Physique","Couche 2 — Liaison","Couche 3 — Réseau","Couche 4 — Transport"],c:1,e:"Un switch opère à la couche 2 (Liaison de données) grâce aux adresses MAC. Il construit et maintient une table MAC pour acheminer les trames."},
+  {q:"À quelle couche OSI opère un routeur ?",o:["Couche 1","Couche 2","Couche 3","Couche 4"],c:2,e:"Un routeur opère à la couche 3 (Réseau) grâce aux adresses IP. Il prend des décisions de routage pour acheminer les paquets entre réseaux."},
+  {q:"À quelle couche OSI opère un hub ?",o:["Couche 1 — Physique","Couche 2 — Liaison","Couche 3 — Réseau","Couche 4 — Transport"],c:0,e:"Un hub est un équipement de couche 1 (Physique). Il se contente de régénérer et redistribuer le signal électrique sur tous ses ports, sans aucune intelligence."},
+  {q:"Le modèle TCP/IP comporte combien de couches ?",o:["3","4","5","7"],c:1,e:"Le modèle TCP/IP (DoD) comporte 4 couches : Accès réseau, Internet, Transport, Application. Il est plus simple que le modèle OSI à 7 couches."},
+
+  // ═══ PROTOCOLES ═══
+  {q:"Quel protocole permet la résolution automatique des adresses IP en adresses MAC ?",o:["DNS","DHCP","ARP","ICMP"],c:2,e:"ARP (Address Resolution Protocol) envoie une requête broadcast pour demander 'Qui a cette IP ?' et reçoit en retour l'adresse MAC correspondante."},
+  {q:"Quel protocole distribue automatiquement les adresses IP aux machines d'un réseau ?",o:["DNS","ARP","DHCP","FTP"],c:2,e:"DHCP (Dynamic Host Configuration Protocol) attribue dynamiquement des adresses IP, masques, passerelles et serveurs DNS aux clients qui se connectent."},
+  {q:"Quel protocole traduit les noms de domaine (ex: google.com) en adresses IP ?",o:["DHCP","ARP","SMTP","DNS"],c:3,e:"DNS (Domain Name System) est l'annuaire d'Internet. Il résout les noms de domaine en adresses IP pour que les machines puissent communiquer."},
+  {q:"Quel protocole est utilisé par la commande ping ?",o:["TCP","UDP","ICMP","ARP"],c:2,e:"ICMP (Internet Control Message Protocol) est le protocole des messages de contrôle réseau. Ping envoie un 'Echo Request' et attend un 'Echo Reply'."},
+  {q:"Quelle est la principale différence entre TCP et UDP ?",o:["TCP est plus rapide qu'UDP","TCP est orienté connexion et fiable, UDP est sans connexion","UDP utilise des adresses IP, pas TCP","TCP est sans fil, UDP filaire"],c:1,e:"TCP garantit la livraison des données (connexion, acquittements, retransmission). UDP est plus rapide mais sans garantie — utilisé pour le streaming, le DNS, etc."},
+  {q:"Sur quel port HTTP fonctionne-t-il par défaut ?",o:["21","22","80","443"],c:2,e:"HTTP utilise le port 80. HTTPS (HTTP sécurisé) utilise le port 443. FTP : 21. SSH : 22."},
+  {q:"Pour connecter les postes d'un réseau local à Internet, il faut obligatoirement :",o:["Un hub","Un CPI (Fournisseur d'accès Internet / FAI)","Un concentrateur","Un site web"],c:1,e:"Un FAI (Fournisseur d'Accès à Internet) ou CPI est indispensable pour accéder à Internet. Il fournit la connexion et l'adresse IP publique."},
+
+  // ═══ SERVEURS & SERVICES ═══
+  {q:"Un réseau local sans accès à Internet peut héberger en interne des serveurs de :",o:["Messagerie et web uniquement","Fichiers, base de données, application, DNS, DHCP, etc.","Uniquement des serveurs DHCP","Aucun service — Internet est nécessaire"],c:1,e:"Un réseau local isolé peut tout à fait héberger des serveurs internes : fichiers, base de données, application, DHCP, DNS, web interne — sans nécessiter Internet."},
+  {q:"Quelle est la fonction principale d'un serveur DHCP ?",o:["Stocker les fichiers des utilisateurs","Attribuer automatiquement des adresses IP","Résoudre les noms de domaine","Filtrer le trafic réseau"],c:1,e:"Le serveur DHCP distribue automatiquement les paramètres réseau (IP, masque, passerelle, DNS) aux machines qui en font la demande au démarrage."},
+  {q:"Quelle est la fonction principale d'un serveur DNS ?",o:["Attribuer des adresses IP","Stocker les e-mails","Traduire les noms de domaine en adresses IP","Gérer les droits d'accès"],c:2,e:"Le serveur DNS (Domain Name System) traduit les noms lisibles (google.com) en adresses IP numériques que les machines peuvent utiliser pour communiquer."},
+  {q:"Une imprimante connectée au réseau et accessible par tous les postes est appelée :",o:["Imprimante locale","Imprimante réseau","Imprimante USB","Imprimante Bluetooth"],c:1,e:"Une imprimante réseau est accessible à tous les postes du réseau via une adresse IP ou un nom partagé. Une imprimante locale est directement branchée à un seul PC."},
+
+  // ═══ TOPOLOGIE & ARCHITECTURE ═══
+  {q:"Dans une topologie en étoile, tous les équipements sont reliés à :",o:["Un anneau central","Un bus commun","Un nœud central (switch ou hub)","Directement entre eux"],c:2,e:"La topologie en étoile centralise toutes les connexions sur un équipement central (switch ou hub). Elle est la plus utilisée dans les réseaux modernes."},
+  {q:"Quelle topologie réseau est la plus utilisée dans les réseaux locaux modernes ?",o:["Bus","Anneau","Maille","Étoile"],c:3,e:"La topologie en étoile est dominante dans les LAN modernes grâce à sa simplicité de gestion, sa facilité de dépannage et la centralisation des connexions sur un switch."},
+  {q:"Dans une topologie en bus, si le câble principal est rompu :",o:["Seul le poste le plus proche est affecté","Tout le réseau tombe en panne","Le signal est redirigé automatiquement","Les switches compensent la panne"],c:1,e:"Dans un bus, tous les postes partagent le même câble. Si ce câble est rompu, le réseau entier est interrompu. C'est pourquoi cette topologie est aujourd'hui abandonnée."},
+  {q:"Quelle est l'architecture d'un réseau où PC3 et PC4 partagent un même switch (EQUIP 3) ?",o:["Architecture en anneau","Architecture en bus","Architecture en étoile","Architecture maillée"],c:2,e:"Quand plusieurs postes (PC3, PC4) se connectent à un switch central (EQUIP 3), on est dans une architecture en étoile — le switch est le nœud central."},
+
+  // ═══ SÉCURITÉ & DIVERS ═══
+  {q:"Qu'est-ce qu'un pare-feu (firewall) ?",o:["Un antivirus installé sur les postes","Un équipement qui filtre le trafic réseau selon des règles","Un protocole de chiffrement","Un type de switch sécurisé"],c:1,e:"Un pare-feu contrôle et filtre le trafic réseau entrant et sortant selon des règles définies. Il constitue la première ligne de défense d'un réseau."},
+  {q:"Qu'est-ce qu'un VPN ?",o:["Un réseau local sans fil","Un réseau privé virtuel créant un tunnel sécurisé sur Internet","Un protocole de routage","Un type d'adresse IP"],c:1,e:"Un VPN (Virtual Private Network) chiffre les communications et crée un tunnel sécurisé sur un réseau public (Internet), permettant de simuler une connexion privée."},
+  {q:"Quel modèle de transmission permet l'envoi et la réception simultanés de données ?",o:["Simplex","Half-duplex","Full-duplex","Multiplex"],c:2,e:"Le full-duplex permet la communication bidirectionnelle simultanée (téléphone fixe). Le half-duplex alterne les sens (talkie-walkie). Le simplex est unidirectionnel (radio)."},
+  {q:"Qu'est-ce que la bande passante d'un réseau ?",o:["Le délai de transmission","La capacité maximale de données transmises par unité de temps","Le nombre de ports d'un switch","La longueur maximale d'un câble"],c:1,e:"La bande passante (bandwidth) est la capacité maximale de transmission d'un réseau, exprimée en bits par seconde (bps, Mbps, Gbps). Plus elle est élevée, plus le réseau est rapide."},
+  {q:"Quel protocole sécurisé remplace Telnet pour l'administration distante des équipements ?",o:["FTP","RDP","SSH","SMTP"],c:2,e:"SSH (Secure Shell, port 22) chiffre entièrement la session d'administration. Telnet transmet tout en clair (mots de passe inclus) et ne doit plus être utilisé."},
+  {q:"Que signifie l'acronyme TCP/IP ?",o:["Transfer Control Protocol / Internet Program","Transmission Control Protocol / Internet Protocol","Technical Computer Protocol / Internet Process","Terminal Control Packet / IP"],c:1,e:"TCP/IP (Transmission Control Protocol / Internet Protocol) est la suite de protocoles fondamentale d'Internet. TCP gère la fiabilité, IP gère l'adressage et le routage."},
+];
+
+let current = 0;
+let answers = new Array(questions.length).fill(null);
+let correct = 0, wrong = 0;
+
+function render() {
+  const q = questions[current];
+  const n = current + 1;
+  const pct = Math.round((n-1)/questions.length*100);
+
+  document.getElementById('progress-bar').style.width = pct+'%';
+  document.getElementById('progress-text').textContent = `Question ${n} / ${questions.length}`;
+  document.getElementById('progress-pct').textContent = pct+'%';
+  document.getElementById('q-num').textContent = `QUESTION ${String(n).padStart(2,'0')}`;
+  document.getElementById('q-text').textContent = q.q;
+
+  const optDiv = document.getElementById('options');
+  optDiv.innerHTML = '';
+  const letters = ['A','B','C','D'];
+
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span>${opt}`;
+    btn.disabled = answers[current] !== null;
+
+    if (answers[current] !== null) {
+      if (i === q.c) btn.classList.add('correct');
+      else if (i === answers[current] && answers[current] !== q.c) btn.classList.add('wrong');
+    }
+
+    btn.addEventListener('click', () => selectAnswer(i));
+    optDiv.appendChild(btn);
+  });
+
+  const exp = document.getElementById('explanation');
+  exp.textContent = '💡 ' + q.e;
+  exp.className = 'explanation' + (answers[current] !== null ? ' show' : '');
+
+  document.getElementById('sc-correct').textContent = correct;
+  document.getElementById('sc-wrong').textContent = wrong;
+  document.getElementById('sc-rem').textContent = questions.length - correct - wrong;
+
+  document.getElementById('btn-prev').style.opacity = current === 0 ? '0.3' : '1';
+  document.getElementById('btn-prev').disabled = current === 0;
+  document.getElementById('btn-next').textContent = current === questions.length-1 ? 'Voir résultats →' : 'Suivante →';
+}
+
+function selectAnswer(i) {
+  if (answers[current] !== null) return;
+  answers[current] = i;
+  if (i === questions[current].c) correct++;
+  else wrong++;
+  render();
+}
+
+function nextQ() {
+  if (current === questions.length-1) { showResult(); return; }
+  current++;
+  render();
+}
+
+function prevQ() {
+  if (current > 0) { current--; render(); }
+}
+
+function showResult() {
+  document.getElementById('quiz-section').style.display = 'none';
+  const rs = document.getElementById('result-screen');
+  rs.style.display = 'block';
+  const pct = Math.round(correct/questions.length*100);
+  document.getElementById('res-score').textContent = `${correct}/${questions.length}`;
+  document.getElementById('res-detail').textContent = `${pct}% de bonnes réponses — ${wrong} erreurs — ${questions.length-correct-wrong} sans réponse`;
+
+  let mention = '';
+  if (pct >= 90) mention = '🏆 Excellent ! Maîtrise parfaite';
+  else if (pct >= 75) mention = '🎯 Très bien ! Quelques révisions suffisent';
+  else if (pct >= 60) mention = '📚 Bien — Continuez à réviser';
+  else if (pct >= 50) mention = '⚡ Moyen — Revoyez les notions clés';
+  else mention = '🔄 Insuffisant — Reprenez les bases';
+  document.getElementById('res-mention').textContent = mention;
+}
+
+function restart() {
+  current = 0;
+  answers = new Array(questions.length).fill(null);
+  correct = 0; wrong = 0;
+  document.getElementById('quiz-section').style.display = 'block';
+  document.getElementById('result-screen').style.display = 'none';
+  render();
+}
+
+render();
+</script>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-initial">M</span>
+      <div>
+        <div class="footer-name">Miracle L.</div>
+        <div class="footer-sub">Créateur du QCM</div>
+      </div>
+    </div>
+    <div class="footer-divider"></div>
+    <a class="footer-wa" href="https://wa.me/2290190821282" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+      +229 01 90 82 12 82
+    </a>
+  </div>
+</footer>
+
+<style>
+  footer {
+    margin-top: 3rem;
+    border-top: 1px solid var(--border);
+    padding: 1.8rem 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  footer::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 1px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+  }
+
+  .footer-inner {
+    max-width: 820px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .footer-initial {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0,229,255,0.2);
+  }
+
+  .footer-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  .footer-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .footer-divider {
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+  }
+
+  .footer-wa {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    color: #25d366;
+    text-decoration: none;
+    background: rgba(37,211,102,0.08);
+    border: 1px solid rgba(37,211,102,0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 99px;
+    transition: all 0.2s ease;
+  }
+
+  .footer-wa:hover {
+    background: rgba(37,211,102,0.15);
+    border-color: rgba(37,211,102,0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(37,211,102,0.15);
+  }
+</style>
+</body>
+</html>
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 3rem 0 2.5rem;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: 1px solid rgba(0,229,255,0.3);
+    padding: 0.25rem 0.75rem;
+    border-radius: 2px;
+    margin-bottom: 1.2rem;
+    background: rgba(0,229,255,0.05);
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #fff 40%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* Progress */
+  .progress-bar-wrap {
+    background: var(--surface2);
+    border-radius: 99px;
+    height: 6px;
+    margin: 2rem 0 0.5rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 99px;
+    transition: width 0.4s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+
+  /* Score panel */
+  .score-panel {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .score-box {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    text-align: center;
+  }
+
+  .score-box .num {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .score-box .lbl {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .score-box.correct .num { color: var(--green); }
+  .score-box.wrong .num { color: var(--red); }
+  .score-box.total .num { color: var(--accent); }
+
+  /* Question card */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    animation: slideIn 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.9rem;
+    text-transform: uppercase;
+  }
+
+  .q-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.55;
+    margin-bottom: 1.5rem;
+    color: #f1f5f9;
+  }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .option-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 0.85rem 1.1rem;
+    cursor: pointer;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.92rem;
+    color: var(--text);
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.06);
+    transform: translateX(4px);
+  }
+
+  .option-letter {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: rgba(0,229,255,0.1);
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    min-width: 26px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .option-btn.correct {
+    border-color: var(--green);
+    background: rgba(16,185,129,0.12);
+    color: #6ee7b7;
+  }
+
+  .option-btn.correct .option-letter { background: rgba(16,185,129,0.2); color: var(--green); }
+
+  .option-btn.wrong {
+    border-color: var(--red);
+    background: rgba(239,68,68,0.1);
+    color: #fca5a5;
+  }
+
+  .option-btn.wrong .option-letter { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .option-btn:disabled { cursor: default; }
+
+  /* Explanation */
+  .explanation {
+    display: none;
+    margin-top: 1.2rem;
+    padding: 1rem 1.2rem;
+    background: rgba(0,229,255,0.05);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.88rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .explanation.show { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+
+  /* Navigation */
+  .nav-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .btn {
+    padding: 0.8rem 1.6rem;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    letter-spacing: 0.03em;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent2), #6d28d9);
+    color: white;
+    flex: 1;
+  }
+
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(124,58,237,0.4); }
+
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { color: var(--text); border-color: var(--muted); }
+
+  /* Result */
+  #result-screen {
+    display: none;
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    animation: slideIn 0.4s ease;
+  }
+
+  .result-score {
+    font-family: 'Space Mono', monospace;
+    font-size: 5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 1rem 0;
+    line-height: 1;
+  }
+
+  .result-mention {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .result-detail {
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .btn-restart {
+    background: linear-gradient(135deg, var(--accent), #0099cc);
+    color: #0a0e1a;
+    padding: 0.9rem 2.5rem;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,229,255,0.3); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .score-panel { gap: 0.5rem; }
+    .score-box .num { font-size: 1.2rem; }
+    .question-card { padding: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="tag">// QCM — Préparation Contrôle</div>
+    <h1>Réseaux Informatiques</h1>
     <p class="subtitle">50 questions · modèles OSI · protocoles · adressage · sécurité</p>
   </header>
 
