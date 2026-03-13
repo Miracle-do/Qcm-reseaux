@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM — Réseaux Informatiques</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a; --surface: #111827; --surface2: #1a2235;
+    --accent: #00e5ff; --accent2: #7c3aed; --green: #10b981;
+    --red: #ef4444; --text: #e2e8f0; --muted: #64748b; --border: #1e293b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+  .container { max-width: 820px; margin: 0 auto; padding: 2rem 1.5rem 4rem; position: relative; z-index: 1; }
+  header { text-align: center; padding: 3rem 0 2.5rem; }
+  .tag { display: inline-block; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; border: 1px solid rgba(0,229,255,0.3); padding: 0.25rem 0.75rem; border-radius: 2px; margin-bottom: 1.2rem; background: rgba(0,229,255,0.05); }
+  h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; background: linear-gradient(135deg, #fff 40%, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1rem; }
+  .subtitle { color: var(--muted); font-size: 0.95rem; font-family: 'Space Mono', monospace; }
+  .progress-bar-wrap { background: var(--surface2); border-radius: 99px; height: 6px; margin: 2rem 0 0.5rem; overflow: hidden; border: 1px solid var(--border); }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 99px; transition: width 0.4s cubic-bezier(.4,0,.2,1); width: 0%; }
+  .progress-label { display: flex; justify-content: space-between; font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--muted); margin-bottom: 2rem; }
+  .score-panel { display: flex; gap: 1rem; margin-bottom: 2rem; }
+  .score-box { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem; text-align: center; }
+  .score-box .num { font-family: 'Space Mono', monospace; font-size: 1.5rem; font-weight: 700; }
+  .score-box .lbl { font-size: 0.72rem; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .score-box.correct .num { color: var(--green); }
+  .score-box.wrong .num { color: var(--red); }
+  .score-box.total .num { color: var(--accent); }
+  .question-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 2rem; margin-bottom: 1.5rem; animation: slideIn 0.3s ease; position: relative; overflow: hidden; }
+  .question-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .q-number { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--accent); letter-spacing: 0.1em; margin-bottom: 0.9rem; text-transform: uppercase; }
+  .q-text { font-size: 1.05rem; font-weight: 600; line-height: 1.55; margin-bottom: 1.2rem; color: #f1f5f9; }
+  .q-illustration { margin-bottom: 1.3rem; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: #0d1424; display: flex; justify-content: center; align-items: center; padding: 0.5rem; }
+  .q-illustration svg { max-width: 100%; height: auto; display: block; }
+  .options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .option-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 0.85rem 1.1rem; cursor: pointer; text-align: left; font-family: 'Syne', sans-serif; font-size: 0.92rem; color: var(--text); transition: all 0.18s ease; display: flex; align-items: center; gap: 0.75rem; }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(0,229,255,0.06); transform: translateX(4px); }
+  .option-letter { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--accent); background: rgba(0,229,255,0.1); border-radius: 4px; padding: 0.1rem 0.4rem; min-width: 26px; text-align: center; flex-shrink: 0; }
+  .option-btn.correct { border-color: var(--green); background: rgba(16,185,129,0.12); color: #6ee7b7; }
+  .option-btn.correct .option-letter { background: rgba(16,185,129,0.2); color: var(--green); }
+  .option-btn.wrong { border-color: var(--red); background: rgba(239,68,68,0.1); color: #fca5a5; }
+  .option-btn.wrong .option-letter { background: rgba(239,68,68,0.15); color: var(--red); }
+  .option-btn:disabled { cursor: default; }
+  .explanation { display: none; margin-top: 1.2rem; padding: 1rem 1.2rem; background: rgba(0,229,255,0.05); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; font-size: 0.88rem; color: #94a3b8; line-height: 1.6; font-family: 'Space Mono', monospace; }
+  .explanation.show { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .nav-row { display: flex; gap: 1rem; margin-top: 1.5rem; }
+  .btn { padding: 0.8rem 1.6rem; border-radius: 8px; border: none; font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.18s ease; letter-spacing: 0.03em; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent2), #6d28d9); color: white; flex: 1; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(124,58,237,0.4); }
+  .btn-secondary { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .btn-secondary:hover { color: var(--text); border-color: var(--muted); }
+  #result-screen { display: none; text-align: center; padding: 3rem 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; animation: slideIn 0.4s ease; }
+  .result-score { font-family: 'Space Mono', monospace; font-size: 5rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 1rem 0; line-height: 1; }
+  .result-mention { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .result-detail { color: var(--muted); font-family: 'Space Mono', monospace; font-size: 0.8rem; margin-bottom: 2rem; }
+  .btn-restart { background: linear-gradient(135deg, var(--accent), #0099cc); color: #0a0e1a; padding: 0.9rem 2.5rem; border-radius: 8px; border: none; font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800; cursor: pointer; transition: all 0.2s ease; }
+  .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,229,255,0.3); }
+  footer { margin-top: 3rem; border-top: 1px solid var(--border); padding: 1.8rem 1.5rem; position: relative; z-index: 1; }
+  footer::before { content: ''; position: absolute; top: -1px; left: 50%; transform: translateX(-50%); width: 120px; height: 1px; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+  .footer-inner { max-width: 820px; margin: 0 auto; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+  .footer-brand { display: flex; align-items: center; gap: 0.85rem; }
+  .footer-initial { width: 42px; height: 42px; background: linear-gradient(135deg, var(--accent2), var(--accent)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; color: #fff; flex-shrink: 0; box-shadow: 0 4px 15px rgba(0,229,255,0.2); }
+  .footer-name { font-weight: 700; font-size: 0.95rem; color: var(--text); }
+  .footer-sub { font-family: 'Space Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-top: 1px; }
+  .footer-divider { width: 1px; height: 32px; background: var(--border); }
+  .footer-wa { display: flex; align-items: center; gap: 0.6rem; font-family: 'Space Mono', monospace; font-size: 0.8rem; color: #25d366; text-decoration: none; background: rgba(37,211,102,0.08); border: 1px solid rgba(37,211,102,0.2); padding: 0.5rem 1rem; border-radius: 99px; transition: all 0.2s ease; }
+  .footer-wa:hover { background: rgba(37,211,102,0.15); border-color: rgba(37,211,102,0.4); transform: translateY(-1px); box-shadow: 0 4px 15px rgba(37,211,102,0.15); }
+  @media (max-width: 600px) { .score-panel { gap: 0.5rem; } .score-box .num { font-size: 1.2rem; } .question-card { padding: 1.4rem; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="tag">// QCM — Préparation Contrôle · ENEAM</div>
+    <h1>Réseaux Informatiques</h1>
+    <p class="subtitle">50 questions illustrées · équipements · adressage IP · protocoles</p>
+  </header>
+  <div id="quiz-section">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="progress-label"><span id="progress-text">Question 1 / 50</span><span id="progress-pct">0%</span></div>
+    <div class="score-panel">
+      <div class="score-box correct"><div class="num" id="sc-correct">0</div><div class="lbl">✓ Correct</div></div>
+      <div class="score-box wrong"><div class="num" id="sc-wrong">0</div><div class="lbl">✗ Faux</div></div>
+      <div class="score-box total"><div class="num" id="sc-rem">50</div><div class="lbl">Restantes</div></div>
+    </div>
+    <div class="question-card" id="q-card">
+      <div class="q-number" id="q-num">QUESTION 01</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="q-illustration" id="q-illustration" style="display:none"></div>
+      <div class="options" id="options"></div>
+      <div class="explanation" id="explanation"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" id="btn-prev" onclick="prevQ()">&#8592; Précédente</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()">Suivante &#8594;</button>
+    </div>
+  </div>
+  <div id="result-screen">
+    <div class="tag">// Résultats finaux</div>
+    <div class="result-score" id="res-score">0/50</div>
+    <div class="result-mention" id="res-mention"></div>
+    <div class="result-detail" id="res-detail"></div>
+    <button class="btn-restart" onclick="restart()">&#8635; Recommencer</button>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-initial">M</span>
+      <div><div class="footer-name">Miracle L.</div><div class="footer-sub">Créateur du QCM</div></div>
+    </div>
+    <div class="footer-divider"></div>
+    <a class="footer-wa" href="https://wa.me/2290190821282" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      +229 01 90 82 12 82
+    </a>
+  </div>
+</footer>
+
+<script>
+const C = {
+  networkTypes: `<svg viewBox="0 0 520 195" width="520" height="195" xmlns="http://www.w3.org/2000/svg" font-family="monospace" font-size="11">
+    <rect width="520" height="195" fill="#0d1424"/>
+    <rect x="8" y="8" width="504" height="179" rx="12" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6,3"/>
+    <text x="18" y="26" fill="#ef4444" font-weight="bold">WAN — Mondial (Internet)</text>
+    <rect x="30" y="34" width="310" height="145" rx="10" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <text x="40" y="50" fill="#f59e0b" font-weight="bold">MAN — Ville / Métropole</text>
+    <rect x="52" y="60" width="185" height="110" rx="8" fill="none" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <text x="62" y="76" fill="#00e5ff" font-weight="bold">LAN — École / Entreprise</text>
+    <rect x="70" y="86" width="110" height="72" rx="6" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="3,2"/>
+    <text x="78" y="101" fill="#a78bfa">PAN</text>
+    <text x="74" y="142" font-size="20">💻</text><text x="104" y="142" font-size="20">📱</text><text x="134" y="142" font-size="20">🖨️</text>
+    <text x="395" y="100" font-size="42">🌐</text>
+    <text x="385" y="130" fill="#ef4444" font-size="10">Internet</text>
+  </svg>`,
+
+  star: `<svg viewBox="0 0 420 215" width="420" height="215" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="420" height="215" fill="#0d1424"/>
+    <rect x="168" y="88" width="84" height="46" rx="8" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+    <text x="210" y="108" text-anchor="middle" fill="#00e5ff" font-size="11" font-weight="bold">SWITCH</text>
+    <text x="210" y="124" text-anchor="middle" fill="#64748b" font-size="9">couche 2</text>
+    <line x1="210" y1="88" x2="210" y2="34" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <line x1="168" y1="111" x2="58" y2="72" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <line x1="168" y1="111" x2="52" y2="158" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <line x1="252" y1="111" x2="362" y2="72" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <line x1="252" y1="111" x2="362" y2="158" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <line x1="210" y1="134" x2="210" y2="190" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <text x="186" y="30" font-size="22">🖥️</text><text x="192" y="20" fill="#94a3b8" font-size="9" text-anchor="middle">PC1</text>
+    <text x="28" y="70" font-size="22">🖥️</text><text x="38" y="60" fill="#94a3b8" font-size="9" text-anchor="middle">PC2</text>
+    <text x="24" y="162" font-size="22">🖥️</text><text x="38" y="152" fill="#94a3b8" font-size="9" text-anchor="middle">PC3</text>
+    <text x="340" y="70" font-size="22">🖥️</text><text x="354" y="60" fill="#94a3b8" font-size="9" text-anchor="middle">PC4</text>
+    <text x="340" y="162" font-size="22">🖥️</text><text x="354" y="152" fill="#94a3b8" font-size="9" text-anchor="middle">PC5</text>
+    <text x="186" y="210" font-size="22">🖨️</text>
+    <text x="210" y="215" text-anchor="middle" fill="#10b981" font-size="9">Topologie en Étoile — noeud central = switch</text>
+  </svg>`,
+
+  bus: `<svg viewBox="0 0 460 125" width="460" height="125" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="460" height="125" fill="#0d1424"/>
+    <line x1="20" y1="78" x2="440" y2="78" stroke="#f59e0b" stroke-width="3"/>
+    <circle cx="20" cy="78" r="5" fill="#f59e0b"/><circle cx="440" cy="78" r="5" fill="#f59e0b"/>
+    <text x="20" y="100" fill="#f59e0b" font-size="9">Term.</text><text x="420" y="100" fill="#f59e0b" font-size="9">Term.</text>
+    <line x1="80" y1="78" x2="80" y2="44" stroke="#64748b" stroke-width="1.5"/><text x="58" y="40" font-size="22">🖥️</text>
+    <line x1="160" y1="78" x2="160" y2="44" stroke="#64748b" stroke-width="1.5"/><text x="138" y="40" font-size="22">🖥️</text>
+    <line x1="240" y1="78" x2="240" y2="44" stroke="#64748b" stroke-width="1.5"/><text x="218" y="40" font-size="22">🖥️</text>
+    <line x1="320" y1="78" x2="320" y2="44" stroke="#64748b" stroke-width="1.5"/><text x="298" y="40" font-size="22">🖥️</text>
+    <line x1="400" y1="78" x2="400" y2="44" stroke="#64748b" stroke-width="1.5"/><text x="378" y="40" font-size="22">🖥️</text>
+    <text x="230" y="118" fill="#ef4444" font-size="10" text-anchor="middle">&#9888; Rupture du câble = tout le réseau tombe !</text>
+  </svg>`,
+
+  hubVsSwitch: `<svg viewBox="0 0 480 190" width="480" height="190" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="190" fill="#0d1424"/>
+    <text x="92" y="20" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="bold">HUB — Diffuse partout</text>
+    <rect x="56" y="28" width="72" height="34" rx="6" fill="#1a2235" stroke="#f59e0b" stroke-width="2"/>
+    <text x="92" y="50" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="bold">HUB</text>
+    <line x1="92" y1="62" x2="32" y2="90" stroke="#ef4444" stroke-width="2"/><text x="12" y="100" font-size="18">🖥️</text>
+    <line x1="92" y1="62" x2="92" y2="90" stroke="#ef4444" stroke-width="2"/><text x="76" y="106" font-size="18">🖥️</text>
+    <line x1="92" y1="62" x2="152" y2="90" stroke="#ef4444" stroke-width="2"/><text x="140" y="100" font-size="18">🖥️</text>
+    <text x="92" y="128" text-anchor="middle" fill="#ef4444" font-size="9">Envoi à TOUS (broadcast)</text>
+    <text x="92" y="152" text-anchor="middle" fill="#64748b" font-size="8">PC3 reçoit même si non concerné</text>
+    <line x1="240" y1="10" x2="240" y2="185" stroke="#1e293b" stroke-width="2"/>
+    <text x="360" y="20" text-anchor="middle" fill="#00e5ff" font-size="12" font-weight="bold">SWITCH — Ciblé</text>
+    <rect x="324" y="28" width="72" height="34" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+    <text x="360" y="50" text-anchor="middle" fill="#00e5ff" font-size="12" font-weight="bold">SWITCH</text>
+    <line x1="360" y1="62" x2="300" y2="90" stroke="#374151" stroke-width="1.5" stroke-dasharray="3,2"/><text x="280" y="100" font-size="18">🖥️</text>
+    <line x1="360" y1="62" x2="360" y2="90" stroke="#10b981" stroke-width="3"/><text x="344" y="106" font-size="18">🖥️</text>
+    <line x1="360" y1="62" x2="420" y2="90" stroke="#374151" stroke-width="1.5" stroke-dasharray="3,2"/><text x="408" y="100" font-size="18">🖥️</text>
+    <text x="360" y="128" text-anchor="middle" fill="#10b981" font-size="9">Envoi au SEUL destinataire</text>
+    <text x="360" y="152" text-anchor="middle" fill="#64748b" font-size="8">PC3 n'est pas dérangé ✓</text>
+  </svg>`,
+
+  router: `<svg viewBox="0 0 480 155" width="480" height="155" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="155" fill="#0d1424"/>
+    <rect x="10" y="28" width="142" height="100" rx="8" fill="none" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <text x="81" y="46" text-anchor="middle" fill="#00e5ff" font-size="10">Réseau 1</text>
+    <text x="81" y="59" text-anchor="middle" fill="#64748b" font-size="9">192.168.1.0/24</text>
+    <text x="18" y="108" font-size="18">🖥️</text><text x="58" y="108" font-size="18">🖥️</text><text x="98" y="108" font-size="18">🖥️</text>
+    <rect x="190" y="56" width="100" height="44" rx="10" fill="#1a2235" stroke="#a78bfa" stroke-width="2"/>
+    <text x="240" y="76" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="bold">ROUTEUR</text>
+    <text x="240" y="91" text-anchor="middle" fill="#64748b" font-size="9">couche 3 · IP</text>
+    <rect x="328" y="28" width="142" height="100" rx="8" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <text x="399" y="46" text-anchor="middle" fill="#10b981" font-size="10">Réseau 2</text>
+    <text x="399" y="59" text-anchor="middle" fill="#64748b" font-size="9">10.0.0.0/24</text>
+    <text x="336" y="108" font-size="18">🖥️</text><text x="376" y="108" font-size="18">🖥️</text><text x="416" y="108" font-size="18">🖥️</text>
+    <line x1="152" y1="78" x2="190" y2="78" stroke="#a78bfa" stroke-width="2"/>
+    <line x1="290" y1="78" x2="328" y2="78" stroke="#a78bfa" stroke-width="2"/>
+    <text x="155" y="74" fill="#00e5ff" font-size="8">.1/24</text>
+    <text x="295" y="74" fill="#10b981" font-size="8">.1/24</text>
+    <text x="240" y="148" text-anchor="middle" fill="#a78bfa" font-size="9">Le routeur possède une IP dans CHAQUE réseau interconnecté</text>
+  </svg>`,
+
+  ipv4: `<svg viewBox="0 0 480 168" width="480" height="168" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="168" fill="#0d1424"/>
+    <text x="240" y="22" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="bold">Structure d'une adresse IPv4 — 32 bits</text>
+    <rect x="18" y="32" width="100" height="40" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+    <text x="68" y="48" text-anchor="middle" fill="#00e5ff" font-size="15" font-weight="bold">192</text>
+    <text x="68" y="65" text-anchor="middle" fill="#64748b" font-size="9">Octet 1 (8 bits)</text>
+    <rect x="128" y="32" width="100" height="40" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+    <text x="178" y="48" text-anchor="middle" fill="#00e5ff" font-size="15" font-weight="bold">168</text>
+    <text x="178" y="65" text-anchor="middle" fill="#64748b" font-size="9">Octet 2</text>
+    <rect x="238" y="32" width="100" height="40" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+    <text x="288" y="48" text-anchor="middle" fill="#00e5ff" font-size="15" font-weight="bold">10</text>
+    <text x="288" y="65" text-anchor="middle" fill="#64748b" font-size="9">Octet 3</text>
+    <rect x="348" y="32" width="100" height="40" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+    <text x="398" y="48" text-anchor="middle" fill="#00e5ff" font-size="15" font-weight="bold">5</text>
+    <text x="398" y="65" text-anchor="middle" fill="#64748b" font-size="9">Octet 4</text>
+    <text x="120" y="54" fill="#e2e8f0" font-size="18" font-weight="bold">.</text>
+    <text x="230" y="54" fill="#e2e8f0" font-size="18" font-weight="bold">.</text>
+    <text x="340" y="54" fill="#e2e8f0" font-size="18" font-weight="bold">.</text>
+    <text x="240" y="92" text-anchor="middle" fill="#94a3b8" font-size="10">Représentation binaire</text>
+    <rect x="18" y="100" width="100" height="20" rx="4" fill="#0f172a" stroke="#1e293b"/>
+    <text x="68" y="114" text-anchor="middle" fill="#a78bfa" font-size="9">11000000</text>
+    <rect x="128" y="100" width="100" height="20" rx="4" fill="#0f172a" stroke="#1e293b"/>
+    <text x="178" y="114" text-anchor="middle" fill="#a78bfa" font-size="9">10101000</text>
+    <rect x="238" y="100" width="100" height="20" rx="4" fill="#0f172a" stroke="#1e293b"/>
+    <text x="288" y="114" text-anchor="middle" fill="#a78bfa" font-size="9">00001010</text>
+    <rect x="348" y="100" width="100" height="20" rx="4" fill="#0f172a" stroke="#1e293b"/>
+    <text x="398" y="114" text-anchor="middle" fill="#a78bfa" font-size="9">00000101</text>
+    <rect x="18" y="130" width="210" height="20" rx="4" fill="rgba(0,229,255,0.08)" stroke="#00e5ff" stroke-width="1"/>
+    <text x="123" y="144" text-anchor="middle" fill="#00e5ff" font-size="9">Partie RÉSEAU (classe C)</text>
+    <rect x="238" y="130" width="210" height="20" rx="4" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="1"/>
+    <text x="343" y="144" text-anchor="middle" fill="#10b981" font-size="9">Partie HÔTE</text>
+  </svg>`,
+
+  ipClasses: `<svg viewBox="0 0 480 172" width="480" height="172" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="172" fill="#0d1424"/>
+    <text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Classes d'adresses IPv4</text>
+    <text x="30" y="38" fill="#64748b" font-size="10">Classe</text>
+    <text x="110" y="38" fill="#64748b" font-size="10">1er octet</text>
+    <text x="218" y="38" fill="#64748b" font-size="10">Masque défaut</text>
+    <text x="338" y="38" fill="#64748b" font-size="10">Plage privée</text>
+    <rect x="10" y="44" width="460" height="24" rx="4" fill="rgba(0,229,255,0.07)"/>
+    <text x="30" y="61" fill="#00e5ff" font-size="12" font-weight="bold">A</text><text x="110" y="61" fill="#e2e8f0" font-size="10">1 – 126</text><text x="218" y="61" fill="#a78bfa" font-size="10">255.0.0.0</text><text x="338" y="61" fill="#94a3b8" font-size="10">10.x.x.x</text>
+    <rect x="10" y="72" width="460" height="24" rx="4" fill="rgba(167,139,250,0.07)"/>
+    <text x="30" y="89" fill="#a78bfa" font-size="12" font-weight="bold">B</text><text x="110" y="89" fill="#e2e8f0" font-size="10">128 – 191</text><text x="218" y="89" fill="#a78bfa" font-size="10">255.255.0.0</text><text x="338" y="89" fill="#94a3b8" font-size="10">172.16.x.x</text>
+    <rect x="10" y="100" width="460" height="24" rx="4" fill="rgba(16,185,129,0.1)"/>
+    <text x="30" y="117" fill="#10b981" font-size="12" font-weight="bold">C</text><text x="110" y="117" fill="#e2e8f0" font-size="10">192 – 223</text><text x="218" y="117" fill="#a78bfa" font-size="10">255.255.255.0</text><text x="338" y="117" fill="#94a3b8" font-size="10">192.168.x.x ★</text>
+    <rect x="10" y="128" width="460" height="24" rx="4" fill="rgba(239,68,68,0.07)"/>
+    <text x="30" y="145" fill="#ef4444" font-size="12" font-weight="bold">D</text><text x="110" y="145" fill="#e2e8f0" font-size="10">224 – 239</text><text x="218" y="145" fill="#a78bfa" font-size="10">—</text><text x="338" y="145" fill="#94a3b8" font-size="10">Multicast</text>
+    <text x="240" y="168" text-anchor="middle" fill="#64748b" font-size="9">★ Réseau le plus fréquent dans les labs ENEAM</text>
+  </svg>`,
+
+  cables: `<svg viewBox="0 0 480 185" width="480" height="185" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="185" fill="#0d1424"/>
+    <text x="118" y="18" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">Câble DROIT</text>
+    <text x="118" y="32" text-anchor="middle" fill="#64748b" font-size="9">PC &#8594; Switch &#8594; Routeur</text>
+    <rect x="14" y="46" width="28" height="80" rx="4" fill="#1a2235" stroke="#10b981" stroke-width="2"/>
+    <text x="28" y="90" text-anchor="middle" fill="#10b981" font-size="7">RJ45</text>
+    <line x1="42" y1="58" x2="172" y2="58" stroke="#ef4444" stroke-width="2"/>
+    <line x1="42" y1="68" x2="172" y2="68" stroke="#f97316" stroke-width="2"/>
+    <line x1="42" y1="78" x2="172" y2="78" stroke="#22c55e" stroke-width="2"/>
+    <line x1="42" y1="88" x2="172" y2="88" stroke="#3b82f6" stroke-width="2"/>
+    <line x1="42" y1="98" x2="172" y2="98" stroke="#8b5cf6" stroke-width="2"/>
+    <line x1="42" y1="108" x2="172" y2="108" stroke="#ec4899" stroke-width="2"/>
+    <line x1="42" y1="118" x2="172" y2="118" stroke="#64748b" stroke-width="2"/>
+    <line x1="42" y1="128" x2="172" y2="128" stroke="#e2e8f0" stroke-width="2"/>
+    <rect x="172" y="46" width="28" height="80" rx="4" fill="#1a2235" stroke="#10b981" stroke-width="2"/>
+    <text x="186" y="90" text-anchor="middle" fill="#10b981" font-size="7">RJ45</text>
+    <text x="106" y="150" text-anchor="middle" fill="#10b981" font-size="9">Fils identiques 1:1</text>
+    <text x="24" y="175" font-size="16">🖥️</text><text x="175" y="175" font-size="16">🔀</text>
+    <line x1="240" y1="8" x2="240" y2="185" stroke="#1e293b" stroke-width="1.5"/>
+    <text x="362" y="18" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="bold">Câble CROISÉ</text>
+    <text x="362" y="32" text-anchor="middle" fill="#64748b" font-size="9">PC &#8596; PC / Switch &#8596; Switch</text>
+    <rect x="256" y="46" width="28" height="80" rx="4" fill="#1a2235" stroke="#f59e0b" stroke-width="2"/>
+    <text x="270" y="90" text-anchor="middle" fill="#f59e0b" font-size="7">RJ45</text>
+    <line x1="284" y1="58" x2="294" y2="58" stroke="#ef4444" stroke-width="2"/>
+    <line x1="294" y1="58" x2="414" y2="78" stroke="#ef4444" stroke-width="2" stroke-dasharray="3,1"/>
+    <line x1="284" y1="68" x2="294" y2="68" stroke="#22c55e" stroke-width="2"/>
+    <line x1="294" y1="68" x2="414" y2="58" stroke="#22c55e" stroke-width="2" stroke-dasharray="3,1"/>
+    <line x1="284" y1="78" x2="414" y2="98" stroke="#3b82f6" stroke-width="2" stroke-dasharray="3,1"/>
+    <line x1="284" y1="88" x2="414" y2="88" stroke="#f97316" stroke-width="2"/>
+    <line x1="284" y1="98" x2="414" y2="68" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3,1"/>
+    <line x1="284" y1="108" x2="414" y2="108" stroke="#ec4899" stroke-width="2"/>
+    <line x1="284" y1="118" x2="414" y2="118" stroke="#64748b" stroke-width="2"/>
+    <line x1="284" y1="128" x2="414" y2="128" stroke="#e2e8f0" stroke-width="2"/>
+    <rect x="414" y="46" width="28" height="80" rx="4" fill="#1a2235" stroke="#f59e0b" stroke-width="2"/>
+    <text x="428" y="90" text-anchor="middle" fill="#f59e0b" font-size="7">RJ45</text>
+    <text x="355" y="150" text-anchor="middle" fill="#f59e0b" font-size="9">Fils TX &#8596; RX croisés</text>
+    <text x="267" y="175" font-size="16">🖥️</text><text x="419" y="175" font-size="16">🖥️</text>
+  </svg>`,
+
+  mac: `<svg viewBox="0 0 480 148" width="480" height="148" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="148" fill="#0d1424"/>
+    <text x="240" y="20" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="bold">Adresse MAC — 48 bits / 6 octets</text>
+    <rect x="12" y="28" width="66" height="36" rx="6" fill="#1a2235" stroke="#a78bfa" stroke-width="2"/>
+    <text x="45" y="44" text-anchor="middle" fill="#a78bfa" font-size="14" font-weight="bold">00</text>
+    <text x="45" y="58" text-anchor="middle" fill="#64748b" font-size="8">Octet 1</text>
+    <rect x="88" y="28" width="66" height="36" rx="6" fill="#1a2235" stroke="#a78bfa" stroke-width="2"/>
+    <text x="121" y="44" text-anchor="middle" fill="#a78bfa" font-size="14" font-weight="bold">1A</text>
+    <text x="121" y="58" text-anchor="middle" fill="#64748b" font-size="8">Octet 2</text>
+    <rect x="164" y="28" width="66" height="36" rx="6" fill="#1a2235" stroke="#a78bfa" stroke-width="2"/>
+    <text x="197" y="44" text-anchor="middle" fill="#a78bfa" font-size="14" font-weight="bold">2B</text>
+    <text x="197" y="58" text-anchor="middle" fill="#64748b" font-size="8">Octet 3</text>
+    <rect x="240" y="28" width="66" height="36" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+    <text x="273" y="44" text-anchor="middle" fill="#00e5ff" font-size="14" font-weight="bold">3C</text>
+    <text x="273" y="58" text-anchor="middle" fill="#64748b" font-size="8">Octet 4</text>
+    <rect x="316" y="28" width="66" height="36" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+    <text x="349" y="44" text-anchor="middle" fill="#00e5ff" font-size="14" font-weight="bold">4D</text>
+    <text x="349" y="58" text-anchor="middle" fill="#64748b" font-size="8">Octet 5</text>
+    <rect x="392" y="28" width="66" height="36" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="2"/>
+    <text x="425" y="44" text-anchor="middle" fill="#00e5ff" font-size="14" font-weight="bold">5E</text>
+    <text x="425" y="58" text-anchor="middle" fill="#64748b" font-size="8">Octet 6</text>
+    <text x="80" y="50" fill="#64748b" font-size="14">-</text><text x="156" y="50" fill="#64748b" font-size="14">-</text>
+    <text x="232" y="50" fill="#64748b" font-size="14">-</text><text x="308" y="50" fill="#64748b" font-size="14">-</text><text x="384" y="50" fill="#64748b" font-size="14">-</text>
+    <rect x="12" y="76" width="210" height="24" rx="4" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1"/>
+    <text x="117" y="92" text-anchor="middle" fill="#a78bfa" font-size="9">OUI — Fabricant (ex: Intel, Cisco)</text>
+    <rect x="240" y="76" width="220" height="24" rx="4" fill="rgba(0,229,255,0.08)" stroke="#00e5ff" stroke-width="1"/>
+    <text x="350" y="92" text-anchor="middle" fill="#00e5ff" font-size="9">NIC — Numéro unique de l'appareil</text>
+    <text x="240" y="116" text-anchor="middle" fill="#94a3b8" font-size="9">Gravée en usine dans la carte réseau · Unique au monde · Couche 2 OSI</text>
+    <text x="240" y="132" text-anchor="middle" fill="#64748b" font-size="9">&#9888; Adresse valide = exactement 6 octets (12 chiffres hexadécimaux)</text>
+  </svg>`,
+
+  osi: `<svg viewBox="0 0 480 205" width="480" height="205" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="205" fill="#0d1424"/>
+    <text x="240" y="16" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Modèle OSI — 7 couches</text>
+    <rect x="10" y="22" width="30" height="22" rx="3" fill="#00e5ff22" stroke="#00e5ff" stroke-width="1.5"/>
+    <text x="25" y="37" text-anchor="middle" fill="#00e5ff" font-size="11" font-weight="bold">7</text>
+    <rect x="48" y="22" width="120" height="22" rx="3" fill="#00e5ff10"/>
+    <text x="108" y="37" text-anchor="middle" fill="#00e5ff" font-size="10" font-weight="bold">Application</text>
+    <text x="180" y="37" fill="#94a3b8" font-size="9">HTTP, FTP, DNS, SMTP</text>
+    <rect x="10" y="48" width="30" height="22" rx="3" fill="#06b6d422" stroke="#06b6d4" stroke-width="1.5"/>
+    <text x="25" y="63" text-anchor="middle" fill="#06b6d4" font-size="11" font-weight="bold">6</text>
+    <rect x="48" y="48" width="120" height="22" rx="3" fill="#06b6d410"/>
+    <text x="108" y="63" text-anchor="middle" fill="#06b6d4" font-size="10" font-weight="bold">Présentation</text>
+    <text x="180" y="63" fill="#94a3b8" font-size="9">Chiffrement, compression</text>
+    <rect x="10" y="74" width="30" height="22" rx="3" fill="#0ea5e922" stroke="#0ea5e9" stroke-width="1.5"/>
+    <text x="25" y="89" text-anchor="middle" fill="#0ea5e9" font-size="11" font-weight="bold">5</text>
+    <rect x="48" y="74" width="120" height="22" rx="3" fill="#0ea5e910"/>
+    <text x="108" y="89" text-anchor="middle" fill="#0ea5e9" font-size="10" font-weight="bold">Session</text>
+    <text x="180" y="89" fill="#94a3b8" font-size="9">Gestion des sessions</text>
+    <rect x="10" y="100" width="30" height="22" rx="3" fill="#a78bfa22" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="25" y="115" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="bold">4</text>
+    <rect x="48" y="100" width="120" height="22" rx="3" fill="#a78bfa10"/>
+    <text x="108" y="115" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="bold">Transport</text>
+    <text x="180" y="115" fill="#94a3b8" font-size="9">TCP, UDP — segments</text>
+    <rect x="10" y="126" width="30" height="22" rx="3" fill="#f59e0b22" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="25" y="141" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="bold">3</text>
+    <rect x="48" y="126" width="120" height="22" rx="3" fill="#f59e0b10"/>
+    <text x="108" y="141" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="bold">Réseau</text>
+    <text x="180" y="141" fill="#94a3b8" font-size="9">IP, routeurs — paquets</text>
+    <rect x="10" y="152" width="30" height="22" rx="3" fill="#10b98122" stroke="#10b981" stroke-width="1.5"/>
+    <text x="25" y="167" text-anchor="middle" fill="#10b981" font-size="11" font-weight="bold">2</text>
+    <rect x="48" y="152" width="120" height="22" rx="3" fill="#10b98110"/>
+    <text x="108" y="167" text-anchor="middle" fill="#10b981" font-size="10" font-weight="bold">Liaison</text>
+    <text x="180" y="167" fill="#94a3b8" font-size="9">MAC, switches — trames</text>
+    <rect x="10" y="178" width="30" height="22" rx="3" fill="#64748b22" stroke="#64748b" stroke-width="1.5"/>
+    <text x="25" y="193" text-anchor="middle" fill="#64748b" font-size="11" font-weight="bold">1</text>
+    <rect x="48" y="178" width="120" height="22" rx="3" fill="#64748b10"/>
+    <text x="108" y="193" text-anchor="middle" fill="#64748b" font-size="10" font-weight="bold">Physique</text>
+    <text x="180" y="193" fill="#94a3b8" font-size="9">Câbles, hubs, bits</text>
+  </svg>`,
+
+  ports: `<svg viewBox="0 0 480 178" width="480" height="178" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="178" fill="#0d1424"/>
+    <text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Protocoles principaux et leurs ports</text>
+    <text x="42" y="36" text-anchor="middle" fill="#64748b" font-size="10">Protocole</text>
+    <text x="102" y="36" text-anchor="middle" fill="#64748b" font-size="10">Port</text>
+    <text x="200" y="36" text-anchor="middle" fill="#64748b" font-size="10">Description</text>
+    <rect x="10" y="40" width="460" height="18" rx="3" fill="rgba(255,255,255,0.02)"/>
+    <rect x="12" y="42" width="56" height="14" rx="3" fill="#00e5ff22" stroke="#00e5ff" stroke-width="1"/>
+    <text x="40" y="53" text-anchor="middle" fill="#00e5ff" font-size="10" font-weight="bold">HTTP</text>
+    <text x="102" y="53" text-anchor="middle" fill="#e2e8f0" font-size="10">80</text>
+    <text x="200" y="53" fill="#64748b" font-size="9">Web non sécurisé</text>
+    <rect x="10" y="62" width="460" height="18" rx="3" fill="rgba(255,255,255,0.01)"/>
+    <rect x="12" y="64" width="56" height="14" rx="3" fill="#10b98122" stroke="#10b981" stroke-width="1"/>
+    <text x="40" y="75" text-anchor="middle" fill="#10b981" font-size="10" font-weight="bold">HTTPS</text>
+    <text x="102" y="75" text-anchor="middle" fill="#e2e8f0" font-size="10">443</text>
+    <text x="200" y="75" fill="#64748b" font-size="9">Web sécurisé (TLS/SSL)</text>
+    <rect x="10" y="84" width="460" height="18" rx="3" fill="rgba(255,255,255,0.02)"/>
+    <rect x="12" y="86" width="56" height="14" rx="3" fill="#a78bfa22" stroke="#a78bfa" stroke-width="1"/>
+    <text x="40" y="97" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="bold">FTP</text>
+    <text x="102" y="97" text-anchor="middle" fill="#e2e8f0" font-size="10">21</text>
+    <text x="200" y="97" fill="#64748b" font-size="9">Transfert de fichiers</text>
+    <rect x="10" y="106" width="460" height="18" rx="3" fill="rgba(255,255,255,0.01)"/>
+    <rect x="12" y="108" width="56" height="14" rx="3" fill="#f59e0b22" stroke="#f59e0b" stroke-width="1"/>
+    <text x="40" y="119" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="bold">SSH</text>
+    <text x="102" y="119" text-anchor="middle" fill="#e2e8f0" font-size="10">22</text>
+    <text x="200" y="119" fill="#64748b" font-size="9">Administration sécurisée à distance</text>
+    <rect x="10" y="128" width="460" height="18" rx="3" fill="rgba(255,255,255,0.02)"/>
+    <rect x="12" y="130" width="56" height="14" rx="3" fill="#06b6d422" stroke="#06b6d4" stroke-width="1"/>
+    <text x="40" y="141" text-anchor="middle" fill="#06b6d4" font-size="10" font-weight="bold">DNS</text>
+    <text x="102" y="141" text-anchor="middle" fill="#e2e8f0" font-size="10">53</text>
+    <text x="200" y="141" fill="#64748b" font-size="9">Résolution de noms de domaine</text>
+    <rect x="10" y="150" width="460" height="18" rx="3" fill="rgba(255,255,255,0.01)"/>
+    <rect x="12" y="152" width="56" height="14" rx="3" fill="#ec489922" stroke="#ec4899" stroke-width="1"/>
+    <text x="40" y="163" text-anchor="middle" fill="#ec4899" font-size="10" font-weight="bold">DHCP</text>
+    <text x="102" y="163" text-anchor="middle" fill="#e2e8f0" font-size="10">67/68</text>
+    <text x="200" y="163" fill="#64748b" font-size="9">Attribution IP automatique</text>
+  </svg>`,
+
+  broadcast: `<svg viewBox="0 0 480 172" width="480" height="172" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="172" fill="#0d1424"/>
+    <text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Adresses spéciales dans un réseau /24</text>
+    <rect x="20" y="28" width="440" height="38" rx="6" fill="#1a2235" stroke="#1e293b" stroke-width="1"/>
+    <rect x="20" y="28" width="52" height="38" rx="6" fill="rgba(0,229,255,0.15)" stroke="#00e5ff" stroke-width="1.5"/>
+    <text x="46" y="44" text-anchor="middle" fill="#00e5ff" font-size="9" font-weight="bold">x.x.x.0</text>
+    <text x="46" y="58" text-anchor="middle" fill="#00e5ff" font-size="8">Réseau</text>
+    <rect x="408" y="28" width="52" height="38" rx="6" fill="rgba(239,68,68,0.15)" stroke="#ef4444" stroke-width="1.5"/>
+    <text x="434" y="44" text-anchor="middle" fill="#ef4444" font-size="8" font-weight="bold">x.x.x.255</text>
+    <text x="434" y="58" text-anchor="middle" fill="#ef4444" font-size="8">Broadcast</text>
+    <text x="230" y="44" text-anchor="middle" fill="#10b981" font-size="10">.1 à .254 — Hôtes utilisables</text>
+    <text x="230" y="58" text-anchor="middle" fill="#64748b" font-size="9">soit 254 machines</text>
+    <rect x="20" y="78" width="200" height="38" rx="6" fill="rgba(0,229,255,0.06)" stroke="#00e5ff" stroke-width="1"/>
+    <text x="120" y="94" text-anchor="middle" fill="#00e5ff" font-size="10" font-weight="bold">Adresse réseau</text>
+    <text x="120" y="110" text-anchor="middle" fill="#94a3b8" font-size="10">192.168.10.0/24</text>
+    <rect x="260" y="78" width="200" height="38" rx="6" fill="rgba(239,68,68,0.06)" stroke="#ef4444" stroke-width="1"/>
+    <text x="360" y="94" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="bold">Broadcast réseau</text>
+    <text x="360" y="110" text-anchor="middle" fill="#94a3b8" font-size="10">192.168.10.255</text>
+    <rect x="20" y="128" width="440" height="32" rx="6" fill="rgba(245,158,11,0.08)" stroke="#f59e0b" stroke-width="1"/>
+    <text x="240" y="142" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="bold">255.255.255.255 = Broadcast LOCAL limité</text>
+    <text x="240" y="155" text-anchor="middle" fill="#94a3b8" font-size="9">Envoie un message à toutes les machines du réseau local</text>
+  </svg>`,
+
+  tcpUdp: `<svg viewBox="0 0 480 182" width="480" height="182" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="182" fill="#0d1424"/>
+    <line x1="240" y1="8" x2="240" y2="182" stroke="#1e293b" stroke-width="1.5"/>
+    <text x="120" y="22" text-anchor="middle" fill="#00e5ff" font-size="13" font-weight="bold">TCP</text>
+    <text x="120" y="36" text-anchor="middle" fill="#64748b" font-size="9">Orienté connexion — fiable</text>
+    <text x="28" y="56" fill="#94a3b8" font-size="9">Client</text><text x="174" y="56" fill="#94a3b8" font-size="9">Serveur</text>
+    <line x1="58" y1="66" x2="58" y2="162" stroke="#1e293b" stroke-width="1"/>
+    <line x1="188" y1="66" x2="188" y2="162" stroke="#1e293b" stroke-width="1"/>
+    <line x1="58" y1="76" x2="188" y2="88" stroke="#00e5ff" stroke-width="1.5"/>
+    <text x="120" y="74" text-anchor="middle" fill="#00e5ff" font-size="9">SYN &#8594;</text>
+    <line x1="188" y1="98" x2="58" y2="110" stroke="#10b981" stroke-width="1.5"/>
+    <text x="120" y="97" text-anchor="middle" fill="#10b981" font-size="9">&#8592; SYN-ACK</text>
+    <line x1="58" y1="120" x2="188" y2="132" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="120" y="119" text-anchor="middle" fill="#a78bfa" font-size="9">ACK &#8594;</text>
+    <text x="120" y="152" text-anchor="middle" fill="#10b981" font-size="9">Connexion établie ✓</text>
+    <text x="120" y="166" text-anchor="middle" fill="#64748b" font-size="8">Fiable · Ordonné · Acquittements</text>
+    <text x="360" y="22" text-anchor="middle" fill="#f59e0b" font-size="13" font-weight="bold">UDP</text>
+    <text x="360" y="36" text-anchor="middle" fill="#64748b" font-size="9">Sans connexion — rapide</text>
+    <text x="268" y="56" fill="#94a3b8" font-size="9">Client</text><text x="414" y="56" fill="#94a3b8" font-size="9">Serveur</text>
+    <line x1="296" y1="66" x2="296" y2="162" stroke="#1e293b" stroke-width="1"/>
+    <line x1="426" y1="66" x2="426" y2="162" stroke="#1e293b" stroke-width="1"/>
+    <line x1="296" y1="78" x2="426" y2="86" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="360" y="76" text-anchor="middle" fill="#f59e0b" font-size="9">Data &#8594;</text>
+    <line x1="296" y1="98" x2="426" y2="106" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="360" y="96" text-anchor="middle" fill="#f59e0b" font-size="9">Data &#8594;</text>
+    <line x1="296" y1="118" x2="426" y2="126" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="360" y="116" text-anchor="middle" fill="#f59e0b" font-size="9">Data &#8594;</text>
+    <text x="360" y="152" text-anchor="middle" fill="#ef4444" font-size="9">Pas d'accusé de réception</text>
+    <text x="360" y="166" text-anchor="middle" fill="#64748b" font-size="8">Streaming · DNS · VoIP</text>
+  </svg>`,
+
+  nic: `<svg viewBox="0 0 420 155" width="420" height="155" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="420" height="155" fill="#0d1424"/>
+    <rect x="20" y="28" width="260" height="110" rx="8" fill="#0d2b1a" stroke="#166534" stroke-width="2"/>
+    <rect x="68" y="52" width="72" height="52" rx="4" fill="#1a1a2e" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="104" y="75" text-anchor="middle" fill="#a78bfa" font-size="10">NIC</text>
+    <text x="104" y="90" text-anchor="middle" fill="#a78bfa" font-size="9">CHIP</text>
+    <line x1="140" y1="78" x2="192" y2="78" stroke="#22c55e" stroke-width="1"/>
+    <line x1="140" y1="86" x2="192" y2="86" stroke="#22c55e" stroke-width="1"/>
+    <rect x="218" y="62" width="42" height="42" rx="4" fill="#1e293b" stroke="#00e5ff" stroke-width="2"/>
+    <text x="239" y="86" text-anchor="middle" fill="#00e5ff" font-size="8" font-weight="bold">RJ45</text>
+    <rect x="20" y="128" width="260" height="12" rx="2" fill="#b45309"/>
+    <text x="150" y="138" text-anchor="middle" fill="#fef3c7" font-size="8">Connecteur PCIe — s'insère dans la carte mère</text>
+    <text x="348" y="52" fill="#e2e8f0" font-size="11" font-weight="bold">Carte NIC</text>
+    <text x="348" y="70" fill="#64748b" font-size="9">Port RJ45</text>
+    <text x="348" y="84" fill="#64748b" font-size="9">Câble Ethernet</text>
+    <text x="348" y="106" fill="#a78bfa" font-size="9">Adresse MAC</text>
+    <text x="348" y="120" fill="#a78bfa" font-size="9">gravée en usine</text>
+    <text x="348" y="136" fill="#64748b" font-size="9">Couche 2 OSI</text>
+    <line x1="280" y1="83" x2="338" y2="78" stroke="#64748b" stroke-width="1" stroke-dasharray="2,1"/>
+  </svg>`,
+
+  dhcp: `<svg viewBox="0 0 480 168" width="480" height="168" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="168" fill="#0d1424"/>
+    <text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Processus DHCP — Obtention automatique d'une IP</text>
+    <rect x="20" y="28" width="74" height="40" rx="6" fill="#1a2235" stroke="#00e5ff" stroke-width="1.5"/>
+    <text x="57" y="50" text-anchor="middle" fill="#00e5ff" font-size="10">CLIENT</text>
+    <text x="57" y="63" text-anchor="middle" fill="#64748b" font-size="8">sans IP</text>
+    <rect x="386" y="28" width="74" height="40" rx="6" fill="#1a2235" stroke="#10b981" stroke-width="1.5"/>
+    <text x="423" y="50" text-anchor="middle" fill="#10b981" font-size="10">SERVEUR</text>
+    <text x="423" y="63" text-anchor="middle" fill="#64748b" font-size="8">DHCP</text>
+    <line x1="30" y1="84" x2="30" y2="162" stroke="#1e293b" stroke-width="1"/>
+    <line x1="450" y1="84" x2="450" y2="162" stroke="#1e293b" stroke-width="1"/>
+    <line x1="30" y1="94" x2="450" y2="101" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="240" y="92" text-anchor="middle" fill="#f59e0b" font-size="9">1. DISCOVER &#8594; (broadcast — "Y a-t-il un serveur DHCP ?")</text>
+    <line x1="450" y1="109" x2="30" y2="116" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="240" y="108" text-anchor="middle" fill="#a78bfa" font-size="9">2. &#8592; OFFER (propose 192.168.1.10)</text>
+    <line x1="30" y1="124" x2="450" y2="131" stroke="#00e5ff" stroke-width="1.5"/>
+    <text x="240" y="123" text-anchor="middle" fill="#00e5ff" font-size="9">3. REQUEST &#8594; (j'accepte cette IP)</text>
+    <line x1="450" y1="139" x2="30" y2="146" stroke="#10b981" stroke-width="1.5"/>
+    <text x="240" y="138" text-anchor="middle" fill="#10b981" font-size="9">4. &#8592; ACK ✓ (IP confirmée — bail accordé)</text>
+    <text x="57" y="160" text-anchor="middle" fill="#10b981" font-size="9">IP: .10 ✓</text>
+  </svg>`,
+
+  dns: `<svg viewBox="0 0 480 155" width="480" height="155" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="155" fill="#0d1424"/>
+    <text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Résolution DNS — Nom de domaine &#8594; Adresse IP</text>
+    <text x="38" y="70" font-size="30">🖥️</text>
+    <text x="55" y="88" text-anchor="middle" fill="#94a3b8" font-size="8">Client</text>
+    <rect x="178" y="50" width="84" height="44" rx="8" fill="#1a2235" stroke="#06b6d4" stroke-width="2"/>
+    <text x="220" y="70" text-anchor="middle" fill="#06b6d4" font-size="10" font-weight="bold">Serveur DNS</text>
+    <text x="220" y="85" text-anchor="middle" fill="#64748b" font-size="9">Port 53</text>
+    <rect x="360" y="50" width="84" height="44" rx="8" fill="#1a2235" stroke="#10b981" stroke-width="2"/>
+    <text x="402" y="70" text-anchor="middle" fill="#10b981" font-size="10" font-weight="bold">Serveur Web</text>
+    <text x="402" y="85" text-anchor="middle" fill="#64748b" font-size="9">142.250.74.46</text>
+    <line x1="70" y1="68" x2="176" y2="68" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="122" y="62" text-anchor="middle" fill="#f59e0b" font-size="8">www.google.com ?</text>
+    <line x1="176" y1="80" x2="70" y2="80" stroke="#06b6d4" stroke-width="1.5"/>
+    <text x="122" y="96" text-anchor="middle" fill="#06b6d4" font-size="8">&#8594; 142.250.74.46</text>
+    <line x1="262" y1="72" x2="358" y2="72" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <text x="310" y="66" text-anchor="middle" fill="#10b981" font-size="8">connexion directe</text>
+    <text x="240" y="116" text-anchor="middle" fill="#94a3b8" font-size="9">1. Demande au DNS &#8594; 2. DNS répond l'IP &#8594; 3. Client se connecte</text>
+    <text x="240" y="132" text-anchor="middle" fill="#64748b" font-size="9">Sans DNS, il faudrait mémoriser chaque adresse IP !</text>
+  </svg>`,
+
+  vpn: `<svg viewBox="0 0 480 150" width="480" height="150" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="150" fill="#0d1424"/>
+    <text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">VPN — Tunnel Chiffré sur Internet</text>
+    <text x="20" y="72" font-size="30">🖥️</text>
+    <text x="37" y="92" text-anchor="middle" fill="#94a3b8" font-size="8">Employé</text>
+    <rect x="160" y="56" width="140" height="38" rx="20" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>
+    <text x="230" y="79" text-anchor="middle" fill="#64748b" font-size="11">🌐 Internet</text>
+    <text x="418" y="72" font-size="30">🏢</text>
+    <text x="432" y="92" text-anchor="middle" fill="#94a3b8" font-size="8">Entreprise</text>
+    <rect x="52" y="64" width="366" height="18" rx="9" fill="none" stroke="#a78bfa" stroke-width="2" stroke-dasharray="6,3"/>
+    <line x1="52" y1="73" x2="158" y2="73" stroke="#a78bfa" stroke-width="2"/>
+    <line x1="302" y1="73" x2="418" y2="73" stroke="#a78bfa" stroke-width="2"/>
+    <text x="237" y="57" text-anchor="middle" fill="#a78bfa" font-size="9">🔒 Tunnel VPN chiffré (TLS)</text>
+    <text x="240" y="116" text-anchor="middle" fill="#10b981" font-size="9">&#10003; Données chiffrées · IP masquée · Accès réseau privé à distance</text>
+    <text x="240" y="132" text-anchor="middle" fill="#64748b" font-size="9">Usages : télétravail, confidentialité, contournement géographique</text>
+  </svg>`,
+
+  duplex: `<svg viewBox="0 0 480 168" width="480" height="168" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="168" fill="#0d1424"/>
+    <text x="74" y="18" text-anchor="middle" fill="#64748b" font-size="11" font-weight="bold">SIMPLEX</text>
+    <text x="28" y="48" font-size="20">📻</text>
+    <line x1="52" y1="50" x2="112" y2="50" stroke="#64748b" stroke-width="2"/>
+    <polygon points="112,44 125,50 112,56" fill="#64748b"/>
+    <text x="130" y="54" font-size="20">👂</text>
+    <text x="74" y="90" text-anchor="middle" fill="#64748b" font-size="9">Un seul sens</text>
+    <text x="74" y="104" text-anchor="middle" fill="#64748b" font-size="8">Radio, TV</text>
+    <line x1="164" y1="8" x2="164" y2="158" stroke="#1e293b" stroke-width="1.5"/>
+    <text x="244" y="18" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="bold">HALF-DUPLEX</text>
+    <text x="178" y="48" font-size="20">📟</text>
+    <line x1="202" y1="42" x2="262" y2="42" stroke="#f59e0b" stroke-width="2"/>
+    <polygon points="262,36 275,42 262,48" fill="#f59e0b"/>
+    <text x="278" y="48" font-size="20">📟</text>
+    <line x1="278" y1="64" x2="218" y2="64" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,2"/>
+    <polygon points="218,58 205,64 218,70" fill="#f59e0b"/>
+    <text x="244" y="94" text-anchor="middle" fill="#f59e0b" font-size="9">Deux sens, PAS simultanément</text>
+    <text x="244" y="108" text-anchor="middle" fill="#64748b" font-size="8">Talkie-walkie, Wi-Fi basique</text>
+    <line x1="324" y1="8" x2="324" y2="158" stroke="#1e293b" stroke-width="1.5"/>
+    <text x="404" y="18" text-anchor="middle" fill="#10b981" font-size="11" font-weight="bold">FULL-DUPLEX</text>
+    <text x="334" y="48" font-size="20">📞</text>
+    <line x1="358" y1="42" x2="426" y2="42" stroke="#10b981" stroke-width="2"/>
+    <polygon points="426,36 439,42 426,48" fill="#10b981"/>
+    <text x="438" y="48" font-size="20">📞</text>
+    <line x1="438" y1="60" x2="360" y2="60" stroke="#10b981" stroke-width="2"/>
+    <polygon points="360,54 347,60 360,66" fill="#10b981"/>
+    <text x="404" y="94" text-anchor="middle" fill="#10b981" font-size="9">Deux sens SIMULTANÉMENT</text>
+    <text x="404" y="108" text-anchor="middle" fill="#64748b" font-size="8">Téléphone, Ethernet moderne</text>
+  </svg>`,
+
+  cidr: `<svg viewBox="0 0 480 172" width="480" height="172" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+    <rect width="480" height="172" fill="#0d1424"/>
+    <text x="240" y="18" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">Notation CIDR — Masques de sous-réseau</text>
+    <text x="60" y="38" text-anchor="middle" fill="#64748b" font-size="10">CIDR</text>
+    <text x="178" y="38" text-anchor="middle" fill="#64748b" font-size="10">Masque</text>
+    <text x="300" y="38" text-anchor="middle" fill="#64748b" font-size="10">Nb hôtes</text>
+    <text x="416" y="38" text-anchor="middle" fill="#64748b" font-size="10">Note</text>
+    <rect x="10" y="44" width="460" height="22" rx="3" fill="rgba(0,229,255,0.07)"/>
+    <text x="60" y="60" text-anchor="middle" fill="#00e5ff" font-size="12" font-weight="bold">/8</text>
+    <text x="178" y="60" text-anchor="middle" fill="#e2e8f0" font-size="10">255.0.0.0</text>
+    <text x="300" y="60" text-anchor="middle" fill="#00e5ff" font-size="10">16 777 214</text>
+    <text x="416" y="60" text-anchor="middle" fill="#94a3b8" font-size="9">Classe A</text>
+    <rect x="10" y="70" width="460" height="22" rx="3" fill="rgba(167,139,250,0.07)"/>
+    <text x="60" y="86" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="bold">/16</text>
+    <text x="178" y="86" text-anchor="middle" fill="#e2e8f0" font-size="10">255.255.0.0</text>
+    <text x="300" y="86" text-anchor="middle" fill="#a78bfa" font-size="10">65 534</text>
+    <text x="416" y="86" text-anchor="middle" fill="#94a3b8" font-size="9">Classe B</text>
+    <rect x="10" y="96" width="460" height="22" rx="3" fill="rgba(16,185,129,0.1)"/>
+    <text x="60" y="112" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">/24</text>
+    <text x="178" y="112" text-anchor="middle" fill="#e2e8f0" font-size="10">255.255.255.0</text>
+    <text x="300" y="112" text-anchor="middle" fill="#10b981" font-size="10">254 &#9733;</text>
+    <text x="416" y="112" text-anchor="middle" fill="#94a3b8" font-size="9">Classe C — courant</text>
+    <rect x="10" y="122" width="460" height="22" rx="3" fill="rgba(245,158,11,0.07)"/>
+    <text x="60" y="138" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="bold">/25</text>
+    <text x="178" y="138" text-anchor="middle" fill="#e2e8f0" font-size="10">255.255.255.128</text>
+    <text x="300" y="138" text-anchor="middle" fill="#f59e0b" font-size="10">126</text>
+    <text x="416" y="138" text-anchor="middle" fill="#94a3b8" font-size="9">Sous-réseau</text>
+    <rect x="10" y="148" width="460" height="22" rx="3" fill="rgba(6,182,212,0.07)"/>
+    <text x="60" y="164" text-anchor="middle" fill="#06b6d4" font-size="12" font-weight="bold">/30</text>
+    <text x="178" y="164" text-anchor="middle" fill="#e2e8f0" font-size="10">255.255.255.252</text>
+    <text x="300" y="164" text-anchor="middle" fill="#06b6d4" font-size="10">2</text>
+    <text x="416" y="164" text-anchor="middle" fill="#94a3b8" font-size="9">Lien point à point</text>
+  </svg>`,
+};
+
+const questions = [
+  {q:"Un réseau qui relie les ordinateurs d'une même école (comme l'ENEAM) est de type :",img:"networkTypes",o:["MAN","WAN","LAN","PAN"],c:2,e:"Un LAN (Local Area Network) relie des ordinateurs sur une zone géographique réduite : un bâtiment, un campus. C'est le cas d'un réseau scolaire."},
+  {q:"Le réseau Internet est de type :",img:"networkTypes",o:["LAN","MAN","WAN","PAN"],c:2,e:"Le WAN (Wide Area Network) couvre de très grandes distances (pays, continents). Internet est le plus grand WAN existant."},
+  {q:"Un réseau composé d'un PC, d'un smartphone, d'une imprimante et d'une tablette reliés en Wi-Fi est de type :",img:"networkTypes",o:["LAN","MAN","WAN","PAN"],c:3,e:"Un PAN (Personal Area Network) est un réseau très court rayon (quelques mètres) regroupant les appareils personnels d'un même utilisateur."},
+  {q:"Un réseau qui relie les bureaux d'une entreprise dans plusieurs quartiers d'une même ville est de type :",img:"networkTypes",o:["PAN","LAN","MAN","WAN"],c:2,e:"Un MAN (Metropolitan Area Network) couvre une zone métropolitaine (ville ou agglomération), intermédiaire entre LAN et WAN."},
+  {q:"Un réseau informatique est :",o:["Un ensemble d'ordinateurs reliés entre eux pour partager des ressources","Un seul ordinateur très puissant","Un logiciel de communication","Un câble reliant deux écrans"],c:0,e:"Un réseau informatique est un ensemble d'équipements informatiques interconnectés, capables de partager des données et des ressources matérielles ou logicielles."},
+  {q:"Un hub est :",img:"hubVsSwitch",o:["Un commutateur intelligent","Un répéteur multi-ports qui diffuse à tous les ports","Un routeur sans fil","Un équipement de couche 3"],c:1,e:"Un hub (concentrateur) reçoit un signal et le réémet sur TOUS ses ports sans distinction. Il opère à la couche 1 du modèle OSI."},
+  {q:"Un switch (commutateur) diffère du hub car il :",img:"hubVsSwitch",o:["Envoie les données à tous les ports","Route les paquets entre réseaux","Envoie les données uniquement au port destinataire","Attribue les adresses IP"],c:2,e:"Un switch apprend les adresses MAC et envoie les trames uniquement au port concerné. Il opère à la couche 2 — bien plus efficace qu'un hub."},
+  {q:"Quel équipement permet de relier deux réseaux IP distincts et de choisir le meilleur chemin ?",img:"router",o:["Hub","Switch","Modem","Routeur"],c:3,e:"Le routeur (couche 3) interconnecte des réseaux différents. Il utilise les adresses IP et des tables de routage pour acheminer les paquets."},
+  {q:"EQUIP 1 est un hub. Lequel de ces termes ne désigne PAS un hub ?",img:"hubVsSwitch",o:["Répéteur multi-ports","Concentrateur","Commutateur","Équipement réseau informatique"],c:2,e:"Un commutateur (switch) est différent d'un hub : il est intelligent et sélectif. Hub, répéteur multi-ports et concentrateur sont des synonymes."},
+  {q:"Si le switch central d'un réseau en étoile tombe en panne, que se passe-t-il ?",img:"star",o:["Seul le switch est affecté","Les machines reliées cessent de communiquer","Le routeur prend le relais automatiquement","Rien ne change"],c:1,e:"Dans une topologie en étoile, si le nœud central (switch) tombe, toutes les machines qui en dépendent perdent la communication."},
+  {q:"Quel équipement réseau ne nécessite PAS d'adresse IP pour fonctionner ?",img:"osi",o:["Routeur","Switch / Hub basique","Serveur","PC"],c:1,e:"Un switch ou un hub de base opèrent aux couches 1 et 2 avec des adresses MAC. Ils n'ont pas besoin d'adresse IP pour commuter les trames."},
+  {q:"Une carte NIC (Network Interface Card) est :",img:"nic",o:["Un type de câble réseau","Une carte réseau permettant à un PC de se connecter au réseau","Un protocole de sécurité","Un type de routeur"],c:1,e:"La carte NIC est un composant matériel permettant à l'ordinateur de communiquer sur un réseau. Elle possède une adresse MAC unique gravée en usine."},
+  {q:"Dans Cisco Packet Tracer, un symbole avec une antenne rectangulaire désigne :",o:["Un routeur","Un switch","Un point d'accès Wi-Fi","Un serveur DNS"],c:2,e:"Dans Cisco Packet Tracer, le point d'accès (Access Point) est représenté par un équipement avec une antenne. Il diffuse un signal Wi-Fi pour connecter les appareils sans fil."},
+  {q:"Quel type de câble utilise-t-on pour relier deux PC directement (sans switch) ?",img:"cables",o:["Câble droit (straight-through)","Câble croisé (cross-over)","Câble console","Fibre optique"],c:1,e:"Un câble croisé (cross-over) est utilisé pour connecter deux équipements de même type (PC-PC, switch-switch). Le câble droit relie des équipements différents."},
+  {q:"Quel câble relie un PC à un switch dans un réseau standard ?",img:"cables",o:["Câble croisé","Câble coaxial","Câble droit (straight-through)","Câble console"],c:2,e:"Le câble droit (straight-through) est utilisé pour connecter des équipements de type différent : PC vers switch, switch vers routeur."},
+  {q:"Si l'ordre des fils de couleur dans un connecteur RJ45 est différent aux deux extrémités, le câble est :",img:"cables",o:["Un câble droit","Un câble croisé","Un câble console","Un câble coaxial"],c:1,e:"Dans un câble croisé, les paires TX et RX sont inversées entre les deux extrémités (T568A d'un côté, T568B de l'autre)."},
+  {q:"Le connecteur standard pour les câbles réseau Ethernet cuivre est :",img:"cables",o:["RJ11","RJ45","BNC","SC"],c:1,e:"RJ45 est le connecteur standard pour les câbles Ethernet. RJ11 est pour le téléphone, BNC pour le coaxial, SC pour la fibre optique."},
+  {q:"Combien de bits comporte une adresse IPv4 ?",img:"ipv4",o:["8 bits","16 bits","32 bits","64 bits"],c:2,e:"Une adresse IPv4 est codée sur 32 bits, répartis en 4 octets séparés par des points. Exemple : 192.168.10.5"},
+  {q:"Quelle est la classe de l'adresse IP 192.168.10.6 ?",img:"ipClasses",o:["Classe A","Classe B","Classe C","Classe D"],c:2,e:"Classe C : de 192.0.0.0 à 223.255.255.255. Masque par défaut : 255.255.255.0. 192.168.x.x est la plage privée de classe C."},
+  {q:"Quelle est la classe de l'adresse IP 172.16.25.68 ?",img:"ipClasses",o:["Classe A","Classe B","Classe C","Classe D"],c:1,e:"Classe B : de 128.0.0.0 à 191.255.255.255. Masque par défaut : 255.255.0.0. 172.16.x.x est la plage privée de classe B."},
+  {q:"Dans l'adresse IP 172.16.25.68 (classe B), quelle est la partie réseau ?",img:"ipv4",o:["172","172.16","172.16.25","172.16.25.68"],c:1,e:"En classe B, les 2 premiers octets (16 bits) identifient le réseau. Ici l'ID réseau est 172.16 et l'ID hôte est 25.68."},
+  {q:"255.255.255.255 est :",img:"broadcast",o:["Une adresse de loopback","Une adresse de diffusion locale (broadcast)","Une adresse privée","L'adresse d'un routeur"],c:1,e:"255.255.255.255 est l'adresse de broadcast limité (broadcast local). Elle envoie un message à toutes les machines du réseau local."},
+  {q:"Quel masque de sous-réseau correspond à /24 en notation CIDR ?",img:"cidr",o:["255.0.0.0","255.255.0.0","255.255.255.0","255.255.255.128"],c:2,e:"/24 = 24 bits à 1 dans le masque = 255.255.255.0. Ce masque permet 254 hôtes utilisables."},
+  {q:"Dans un réseau 192.168.10.0/24, quelle est l'adresse de diffusion (broadcast) ?",img:"broadcast",o:["192.168.10.0","192.168.10.1","192.168.10.254","192.168.10.255"],c:3,e:"L'adresse de broadcast est la dernière adresse du réseau (tous les bits hôtes à 1). Pour /24, le dernier octet est 255."},
+  {q:"Combien de machines peut-on connecter dans un réseau /24 ?",img:"cidr",o:["256","254","255","128"],c:1,e:"Un /24 donne 256 adresses. On soustrait l'adresse réseau (.0) et le broadcast (.255) : 254 hôtes utilisables."},
+  {q:"L'adresse binaire 11000000.10101000.00001010.00001000 correspond en décimal à :",img:"ipv4",o:["192.168.10.6","192.168.10.8","192.168.10.9","192.168.10.5"],c:1,e:"11000000=192, 10101000=168, 00001010=10, 00001000=8. L'adresse est donc 192.168.10.8."},
+  {q:"Quel est le masque par défaut d'un réseau de classe A ?",img:"ipClasses",o:["255.255.255.0","255.255.0.0","255.0.0.0","0.0.0.0"],c:2,e:"Classe A : masque par défaut 255.0.0.0 (/8). 1 octet pour le réseau, 3 octets pour les hôtes soit 16 millions d'hôtes possibles."},
+  {q:"Le routeur doit posséder une adresse IP dans chaque réseau IP qu'il interconnecte.",img:"router",o:["Vrai","Faux","Seulement pour IPv6","Cela dépend du protocole"],c:0,e:"VRAI. Le routeur a une interface (et donc une adresse IP) dans chaque réseau qu'il connecte. C'est ce qui lui permet de réexpédier les paquets."},
+  {q:"Dans l'adresse www.yahoo.fr, 'yahoo' est :",o:["Un protocole","Le nom de domaine","L'adresse IP","Le nom d'hôte"],c:1,e:"www.yahoo.fr : 'www' est le nom d'hôte (sous-domaine), 'yahoo' est le nom de domaine, '.fr' est l'extension (TLD)."},
+  {q:"Une adresse MAC est constituée de :",img:"mac",o:["4 octets","6 octets","8 octets","32 bits"],c:1,e:"Une adresse MAC (Media Access Control) est codée sur 6 octets (48 bits), notée en hexadécimal : 00-1A-2B-3C-4D-5E."},
+  {q:"L'adresse MAC 00-99-00-11-00 est-elle valide ?",img:"mac",o:["Oui, c'est une adresse hexadécimale","Non, elle n'a que 5 octets au lieu de 6","Oui, toutes les MAC hexadécimales sont valides","Non, les MAC commencent toujours par FF"],c:1,e:"Une adresse MAC valide = 6 octets (12 chiffres hexa). '00-99-00-11-00' n'a que 5 groupes = 5 octets — invalide."},
+  {q:"Quelle est la différence entre une adresse IP et une adresse MAC ?",img:"mac",o:["L'adresse IP est physique, la MAC est logique","La MAC est physique et permanente, l'IP est logique et peut changer","Elles sont identiques","La MAC est utilisée par les routeurs uniquement"],c:1,e:"L'adresse MAC est gravée dans la carte réseau (physique, permanente). L'adresse IP est assignée logiquement et peut changer (DHCP)."},
+  {q:"Combien de couches contient le modèle OSI ?",img:"osi",o:["4","5","7","8"],c:2,e:"Le modèle OSI comprend 7 couches : Physique (1), Liaison (2), Réseau (3), Transport (4), Session (5), Présentation (6), Application (7)."},
+  {q:"À quelle couche OSI opère un switch ?",img:"osi",o:["Couche 1 — Physique","Couche 2 — Liaison","Couche 3 — Réseau","Couche 4 — Transport"],c:1,e:"Un switch opère à la couche 2 (Liaison de données) grâce aux adresses MAC. Il maintient une table MAC pour acheminer les trames."},
+  {q:"À quelle couche OSI opère un routeur ?",img:"osi",o:["Couche 1","Couche 2","Couche 3","Couche 4"],c:2,e:"Un routeur opère à la couche 3 (Réseau) grâce aux adresses IP. Il prend des décisions de routage pour acheminer les paquets entre réseaux."},
+  {q:"À quelle couche OSI opère un hub ?",img:"osi",o:["Couche 1 — Physique","Couche 2 — Liaison","Couche 3 — Réseau","Couche 4 — Transport"],c:0,e:"Un hub est un équipement de couche 1 (Physique). Il régénère et redistribue le signal électrique sur tous ses ports, sans aucune intelligence."},
+  {q:"Le modèle TCP/IP comporte combien de couches ?",img:"osi",o:["3","4","5","7"],c:1,e:"Le modèle TCP/IP comporte 4 couches : Accès réseau, Internet, Transport, Application. Il est plus simple que le modèle OSI à 7 couches."},
+  {q:"Quel protocole résout automatiquement les adresses IP en adresses MAC ?",img:"mac",o:["DNS","DHCP","ARP","ICMP"],c:2,e:"ARP (Address Resolution Protocol) envoie une requête broadcast 'Qui a cette IP ?' et reçoit en retour l'adresse MAC correspondante."},
+  {q:"Quel protocole distribue automatiquement les adresses IP aux machines ?",img:"dhcp",o:["DNS","ARP","DHCP","FTP"],c:2,e:"DHCP (Dynamic Host Configuration Protocol) attribue dynamiquement IP, masque, passerelle et DNS aux clients qui se connectent."},
+  {q:"Quel protocole traduit les noms de domaine en adresses IP ?",img:"dns",o:["DHCP","ARP","SMTP","DNS"],c:3,e:"DNS (Domain Name System) est l'annuaire d'Internet. Il résout les noms de domaine (ex: google.com) en adresses IP numériques."},
+  {q:"Quel protocole est utilisé par la commande ping ?",o:["TCP","UDP","ICMP","ARP"],c:2,e:"ICMP (Internet Control Message Protocol) est le protocole des messages de contrôle réseau. Ping envoie un 'Echo Request' et attend un 'Echo Reply'."},
+  {q:"Quelle est la principale différence entre TCP et UDP ?",img:"tcpUdp",o:["TCP est plus rapide qu'UDP","TCP est orienté connexion et fiable, UDP est sans connexion","UDP utilise des adresses IP, pas TCP","TCP est sans fil, UDP filaire"],c:1,e:"TCP garantit la livraison (connexion, acquittements, retransmission). UDP est plus rapide mais sans garantie — utilisé pour streaming, DNS, VoIP."},
+  {q:"Sur quel port HTTP fonctionne-t-il par défaut ?",img:"ports",o:["21","22","80","443"],c:2,e:"HTTP utilise le port 80. HTTPS utilise le port 443. FTP : 21. SSH : 22."},
+  {q:"Pour connecter les postes d'un réseau local à Internet, il faut :",o:["Un hub","Un FAI (Fournisseur d'Accès Internet)","Un concentrateur uniquement","Un site web"],c:1,e:"Un FAI (Fournisseur d'Accès à Internet) est indispensable pour accéder à Internet. Il fournit la connexion et l'adresse IP publique."},
+  {q:"Quelle est la fonction principale d'un serveur DHCP ?",img:"dhcp",o:["Stocker les fichiers des utilisateurs","Attribuer automatiquement des adresses IP","Résoudre les noms de domaine","Filtrer le trafic réseau"],c:1,e:"Le serveur DHCP distribue automatiquement les paramètres réseau (IP, masque, passerelle, DNS) aux machines qui en font la demande au démarrage."},
+  {q:"Quelle est la fonction principale d'un serveur DNS ?",img:"dns",o:["Attribuer des adresses IP","Stocker les e-mails","Traduire les noms de domaine en adresses IP","Gérer les droits d'accès"],c:2,e:"Le serveur DNS traduit les noms lisibles (google.com) en adresses IP numériques que les machines utilisent pour communiquer."},
+  {q:"Dans une topologie en étoile, tous les équipements sont reliés à :",img:"star",o:["Un anneau central","Un bus commun","Un nœud central (switch ou hub)","Directement entre eux"],c:2,e:"La topologie en étoile centralise toutes les connexions sur un équipement central (switch ou hub). Elle est la plus utilisée dans les réseaux modernes."},
+  {q:"Quelle topologie réseau est la plus utilisée dans les réseaux locaux modernes ?",img:"star",o:["Bus","Anneau","Maille","Étoile"],c:3,e:"La topologie en étoile est dominante dans les LAN modernes grâce à sa simplicité de gestion et la centralisation sur un switch."},
+  {q:"Dans une topologie en bus, si le câble principal est rompu :",img:"bus",o:["Seul le poste le plus proche est affecté","Tout le réseau tombe en panne","Le signal est redirigé automatiquement","Les switches compensent"],c:1,e:"Dans un bus, tous les postes partagent le même câble. Si ce câble est rompu, le réseau entier est interrompu."},
+  {q:"Qu'est-ce qu'un VPN ?",img:"vpn",o:["Un réseau local sans fil","Un réseau privé virtuel créant un tunnel sécurisé","Un protocole de routage","Un type d'adresse IP"],c:1,e:"Un VPN (Virtual Private Network) chiffre les communications et crée un tunnel sécurisé sur un réseau public, permettant de simuler une connexion privée."},
+  {q:"Quel modèle de transmission permet l'envoi et la réception simultanés ?",img:"duplex",o:["Simplex","Half-duplex","Full-duplex","Multiplex"],c:2,e:"Le full-duplex permet la communication bidirectionnelle simultanée (téléphone). Le half-duplex alterne les sens (talkie-walkie). Le simplex est unidirectionnel."},
+  {q:"Quel protocole sécurisé remplace Telnet pour l'administration distante ?",img:"ports",o:["FTP","RDP","SSH","SMTP"],c:2,e:"SSH (Secure Shell, port 22) chiffre entièrement la session d'administration. Telnet transmet tout en clair et ne doit plus être utilisé."},
+  {q:"Que signifie TCP/IP ?",img:"tcpUdp",o:["Transfer Control Protocol / Internet Program","Transmission Control Protocol / Internet Protocol","Technical Computer Protocol / Internet Process","Terminal Control Packet / IP"],c:1,e:"TCP/IP (Transmission Control Protocol / Internet Protocol) est la suite de protocoles fondamentale d'Internet. TCP gère la fiabilité, IP l'adressage."},
+];
+
+let current = 0, answers = new Array(questions.length).fill(null), correct = 0, wrong = 0;
+
+function render() {
+  const q = questions[current], n = current + 1;
+  const pct = Math.round((n-1)/questions.length*100);
+  document.getElementById('progress-bar').style.width = pct+'%';
+  document.getElementById('progress-text').textContent = `Question ${n} / ${questions.length}`;
+  document.getElementById('progress-pct').textContent = pct+'%';
+  document.getElementById('q-num').textContent = `QUESTION ${String(n).padStart(2,'0')}`;
+  document.getElementById('q-text').textContent = q.q;
+  const illu = document.getElementById('q-illustration');
+  if (q.img && C[q.img]) { illu.innerHTML = C[q.img]; illu.style.display = 'flex'; }
+  else { illu.innerHTML = ''; illu.style.display = 'none'; }
+  const optDiv = document.getElementById('options');
+  optDiv.innerHTML = '';
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${['A','B','C','D'][i]}</span>${opt}`;
+    btn.disabled = answers[current] !== null;
+    if (answers[current] !== null) {
+      if (i === q.c) btn.classList.add('correct');
+      else if (i === answers[current] && answers[current] !== q.c) btn.classList.add('wrong');
+    }
+    btn.addEventListener('click', () => selectAnswer(i));
+    optDiv.appendChild(btn);
+  });
+  const exp = document.getElementById('explanation');
+  exp.textContent = '💡 ' + q.e;
+  exp.className = 'explanation' + (answers[current] !== null ? ' show' : '');
+  document.getElementById('sc-correct').textContent = correct;
+  document.getElementById('sc-wrong').textContent = wrong;
+  document.getElementById('sc-rem').textContent = questions.length - correct - wrong;
+  document.getElementById('btn-prev').style.opacity = current === 0 ? '0.3' : '1';
+  document.getElementById('btn-prev').disabled = current === 0;
+  document.getElementById('btn-next').textContent = current === questions.length-1 ? 'Voir résultats \u2192' : 'Suivante \u2192';
+}
+
+function selectAnswer(i) {
+  if (answers[current] !== null) return;
+  answers[current] = i;
+  if (i === questions[current].c) correct++; else wrong++;
+  render();
+}
+
+function nextQ() {
+  if (current === questions.length-1) { showResult(); return; }
+  current++; render();
+}
+
+function prevQ() { if (current > 0) { current--; render(); } }
+
+function showResult() {
+  document.getElementById('quiz-section').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'block';
+  const pct = Math.round(correct/questions.length*100);
+  document.getElementById('res-score').textContent = `${correct}/${questions.length}`;
+  document.getElementById('res-detail').textContent = `${pct}% de bonnes réponses — ${wrong} erreurs — ${questions.length-correct-wrong} sans réponse`;
+  const m = pct>=90?'🏆 Excellent ! Maîtrise parfaite':pct>=75?'🎯 Très bien ! Quelques révisions suffisent':pct>=60?'📚 Bien — Continuez à réviser':pct>=50?'⚡ Moyen — Revoyez les notions clés':'🔄 Insuffisant — Reprenez les bases';
+  document.getElementById('res-mention').textContent = m;
+}
+
+function restart() {
+  current = 0; answers = new Array(questions.length).fill(null); correct = 0; wrong = 0;
+  document.getElementById('quiz-section').style.display = 'block';
+  document.getElementById('result-screen').style.display = 'none';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
