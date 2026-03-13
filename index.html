@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM — Réseaux Informatiques</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --green: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --border: #1e293b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 3rem 0 2.5rem;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: 1px solid rgba(0,229,255,0.3);
+    padding: 0.25rem 0.75rem;
+    border-radius: 2px;
+    margin-bottom: 1.2rem;
+    background: rgba(0,229,255,0.05);
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #fff 40%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* Progress */
+  .progress-bar-wrap {
+    background: var(--surface2);
+    border-radius: 99px;
+    height: 6px;
+    margin: 2rem 0 0.5rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 99px;
+    transition: width 0.4s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+
+  /* Score panel */
+  .score-panel {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .score-box {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    text-align: center;
+  }
+
+  .score-box .num {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .score-box .lbl {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .score-box.correct .num { color: var(--green); }
+  .score-box.wrong .num { color: var(--red); }
+  .score-box.total .num { color: var(--accent); }
+
+  /* Question card */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    animation: slideIn 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.9rem;
+    text-transform: uppercase;
+  }
+
+  .q-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.55;
+    margin-bottom: 1.5rem;
+    color: #f1f5f9;
+  }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .option-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 0.85rem 1.1rem;
+    cursor: pointer;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.92rem;
+    color: var(--text);
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.06);
+    transform: translateX(4px);
+  }
+
+  .option-letter {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: rgba(0,229,255,0.1);
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    min-width: 26px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .option-btn.correct {
+    border-color: var(--green);
+    background: rgba(16,185,129,0.12);
+    color: #6ee7b7;
+  }
+
+  .option-btn.correct .option-letter { background: rgba(16,185,129,0.2); color: var(--green); }
+
+  .option-btn.wrong {
+    border-color: var(--red);
+    background: rgba(239,68,68,0.1);
+    color: #fca5a5;
+  }
+
+  .option-btn.wrong .option-letter { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .option-btn:disabled { cursor: default; }
+
+  /* Explanation */
+  .explanation {
+    display: none;
+    margin-top: 1.2rem;
+    padding: 1rem 1.2rem;
+    background: rgba(0,229,255,0.05);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.88rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .explanation.show { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+
+  /* Navigation */
+  .nav-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .btn {
+    padding: 0.8rem 1.6rem;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    letter-spacing: 0.03em;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent2), #6d28d9);
+    color: white;
+    flex: 1;
+  }
+
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(124,58,237,0.4); }
+
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { color: var(--text); border-color: var(--muted); }
+
+  /* Result */
+  #result-screen {
+    display: none;
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    animation: slideIn 0.4s ease;
+  }
+
+  .result-score {
+    font-family: 'Space Mono', monospace;
+    font-size: 5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 1rem 0;
+    line-height: 1;
+  }
+
+  .result-mention {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .result-detail {
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .btn-restart {
+    background: linear-gradient(135deg, var(--accent), #0099cc);
+    color: #0a0e1a;
+    padding: 0.9rem 2.5rem;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,229,255,0.3); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .score-panel { gap: 0.5rem; }
+    .score-box .num { font-size: 1.2rem; }
+    .question-card { padding: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="tag">// QCM — Préparation Contrôle</div>
+    <h1>Réseaux Informatiques</h1>
+    <p class="subtitle">50 questions · modèles OSI · protocoles · adressage · sécurité</p>
+  </header>
+
+  <div id="quiz-section">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="progress-label">
+      <span id="progress-text">Question 1 / 50</span>
+      <span id="progress-pct">0%</span>
+    </div>
+
+    <div class="score-panel">
+      <div class="score-box correct"><div class="num" id="sc-correct">0</div><div class="lbl">✓ Correct</div></div>
+      <div class="score-box wrong"><div class="num" id="sc-wrong">0</div><div class="lbl">✗ Faux</div></div>
+      <div class="score-box total"><div class="num" id="sc-rem">50</div><div class="lbl">Restantes</div></div>
+    </div>
+
+    <div class="question-card" id="q-card">
+      <div class="q-number" id="q-num">QUESTION 01</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="options" id="options"></div>
+      <div class="explanation" id="explanation"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" id="btn-prev" onclick="prevQ()">← Précédente</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()">Suivante →</button>
+    </div>
+  </div>
+
+  <div id="result-screen">
+    <div class="tag">// Résultats finaux</div>
+    <div class="result-score" id="res-score">0/50</div>
+    <div class="result-mention" id="res-mention"></div>
+    <div class="result-detail" id="res-detail"></div>
+    <button class="btn-restart" onclick="restart()">↺ Recommencer</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  // MODÈLE OSI & TCP/IP
+  {q:"Combien de couches contient le modèle OSI ?",o:["5","6","7","8"],c:2,e:"Le modèle OSI (Open Systems Interconnection) comprend 7 couches : Physique, Liaison, Réseau, Transport, Session, Présentation, Application."},
+  {q:"Quelle couche du modèle OSI est responsable du routage des paquets ?",o:["Couche Liaison","Couche Transport","Couche Réseau","Couche Session"],c:2,e:"La couche 3 (Réseau) gère l'adressage logique et le routage des paquets entre réseaux différents. Le protocole IP opère à cette couche."},
+  {q:"Quel protocole opère à la couche Transport du modèle OSI ?",o:["IP","HTTP","TCP","ARP"],c:2,e:"TCP (Transmission Control Protocol) et UDP opèrent à la couche 4 (Transport). IP est à la couche 3."},
+  {q:"La couche Liaison de données du modèle OSI correspond à quelle(s) couche(s) du modèle TCP/IP ?",o:["Couche Accès réseau","Couche Internet","Couche Transport","Couche Application"],c:0,e:"Le modèle TCP/IP (4 couches) regroupe les couches Physique et Liaison d'OSI en une seule : la couche Accès réseau (ou Liaison)."},
+  {q:"Quel est le rôle de la couche Session (OSI) ?",o:["Encoder les données","Établir, gérer et terminer les sessions","Fragmenter les paquets","Calculer les adresses MAC"],c:1,e:"La couche 5 (Session) gère l'ouverture, la maintenance et la fermeture des sessions de communication entre applications."},
+  {q:"À quelle couche OSI opère un commutateur (switch) ?",o:["Couche 1","Couche 2","Couche 3","Couche 4"],c:1,e:"Un switch opère à la couche 2 (Liaison de données) en utilisant les adresses MAC pour transférer les trames."},
+  {q:"À quelle couche OSI opère un routeur ?",o:["Couche 1","Couche 2","Couche 3","Couche 4"],c:2,e:"Un routeur opère à la couche 3 (Réseau) en utilisant les adresses IP pour acheminer les paquets."},
+
+  // ADRESSAGE IP
+  {q:"Combien de bits comporte une adresse IPv4 ?",o:["16 bits","32 bits","64 bits","128 bits"],c:1,e:"Une adresse IPv4 est codée sur 32 bits, soit 4 octets séparés par des points (ex : 192.168.1.1)."},
+  {q:"Combien de bits comporte une adresse IPv6 ?",o:["32 bits","64 bits","128 bits","256 bits"],c:2,e:"IPv6 utilise des adresses de 128 bits, exprimées en hexadécimal groupé par blocs de 16 bits."},
+  {q:"Quelle est l'adresse de loopback (boucle locale) en IPv4 ?",o:["0.0.0.0","192.168.0.1","127.0.0.1","255.255.255.255"],c:2,e:"127.0.0.1 est l'adresse de loopback standard qui permet à une machine de se contacter elle-même sans passer par le réseau."},
+  {q:"Quelle est la classe de l'adresse IP 192.168.10.5 ?",o:["Classe A","Classe B","Classe C","Classe D"],c:2,e:"Les adresses de classe C commencent de 192.0.0.0 à 223.255.255.255. 192.168.x.x est d'ailleurs une plage privée de classe C."},
+  {q:"Quel masque de sous-réseau correspond à /24 en notation CIDR ?",o:["255.0.0.0","255.255.0.0","255.255.255.0","255.255.255.128"],c:2,e:"/24 signifie 24 bits à 1 dans le masque, soit 255.255.255.0. Cela donne 254 hôtes utilisables par réseau."},
+  {q:"Dans un réseau 192.168.1.0/24, quelle est l'adresse de diffusion (broadcast) ?",o:["192.168.1.0","192.168.1.1","192.168.1.254","192.168.1.255"],c:3,e:"L'adresse de broadcast est la dernière adresse du réseau (tous les bits hôte à 1). Pour /24, c'est x.x.x.255."},
+  {q:"Que signifie l'acronyme CIDR ?",o:["Classless Inter-Domain Routing","Common Internet Data Routing","Classful Internet Domain Registry","Circuit Internet Direct Routing"],c:0,e:"CIDR (Classless Inter-Domain Routing) est une méthode d'allocation d'adresses IP sans les contraintes des classes A, B, C traditionnelles."},
+  {q:"Quelle plage d'adresses est réservée aux adresses privées de classe B selon la RFC 1918 ?",o:["10.0.0.0 – 10.255.255.255","172.16.0.0 – 172.31.255.255","192.168.0.0 – 192.168.255.255","169.254.0.0 – 169.254.255.255"],c:1,e:"La RFC 1918 définit 3 plages privées : 10/8 (classe A), 172.16/12 (classe B), 192.168/16 (classe C)."},
+
+  // PROTOCOLES
+  {q:"Sur quel port TCP le protocole HTTP écoute-t-il par défaut ?",o:["21","22","80","443"],c:2,e:"HTTP (HyperText Transfer Protocol) utilise le port 80. HTTPS utilise le port 443."},
+  {q:"Quel protocole est utilisé pour la résolution de noms de domaine ?",o:["DHCP","ARP","DNS","SMTP"],c:2,e:"DNS (Domain Name System) traduit les noms de domaine (ex : google.com) en adresses IP."},
+  {q:"Quel protocole permet l'attribution automatique d'adresses IP ?",o:["DNS","DHCP","ARP","ICMP"],c:1,e:"DHCP (Dynamic Host Configuration Protocol) distribue automatiquement des adresses IP, masques, passerelles et DNS aux clients."},
+  {q:"Quel protocole est utilisé par la commande 'ping' ?",o:["TCP","UDP","ICMP","ARP"],c:2,e:"ICMP (Internet Control Message Protocol) est utilisé par ping pour envoyer des messages Echo Request et recevoir des Echo Reply."},
+  {q:"Quelle est la différence principale entre TCP et UDP ?",o:["TCP est plus rapide","UDP garantit la livraison","TCP est orienté connexion, UDP ne l'est pas","UDP utilise des adresses IP"],c:2,e:"TCP est orienté connexion (3-way handshake, acquittements). UDP est sans connexion, plus rapide mais sans garantie de livraison."},
+  {q:"Sur quel port HTTPS fonctionne-t-il par défaut ?",o:["80","443","8080","8443"],c:1,e:"HTTPS (HTTP Secure) utilise le port 443 avec chiffrement TLS/SSL."},
+  {q:"Quel protocole de messagerie est utilisé pour envoyer des e-mails ?",o:["POP3","IMAP","SMTP","FTP"],c:2,e:"SMTP (Simple Mail Transfer Protocol) est utilisé pour envoyer des e-mails. POP3 et IMAP servent à les recevoir."},
+  {q:"Quel est le rôle du protocole ARP ?",o:["Résoudre les noms en IP","Résoudre les adresses IP en adresses MAC","Attribuer des adresses IP","Fragmenter les paquets"],c:1,e:"ARP (Address Resolution Protocol) permet d'obtenir l'adresse MAC associée à une adresse IP sur un réseau local."},
+  {q:"Sur quel port FTP écoute-t-il par défaut pour les commandes ?",o:["20","21","22","23"],c:1,e:"FTP utilise le port 21 pour les commandes et le port 20 pour le transfert de données en mode actif."},
+  {q:"Quel protocole sécurisé remplace Telnet pour l'administration à distance ?",o:["FTP","SSL","SSH","RDP"],c:2,e:"SSH (Secure Shell) chiffre les communications et remplace Telnet qui transmettait tout en clair. Il utilise le port 22."},
+
+  // TOPOLOGIES & MATÉRIELS
+  {q:"Quel équipement permet de connecter plusieurs réseaux distincts et de choisir le meilleur chemin pour les paquets ?",o:["Hub","Switch","Routeur","Pont (Bridge)"],c:2,e:"Le routeur (couche 3) interconnecte des réseaux différents et utilise des tables de routage pour acheminer les paquets."},
+  {q:"Quelle est la topologie réseau où chaque équipement est connecté à un nœud central ?",o:["Bus","Anneau","Étoile","Maille"],c:2,e:"Dans la topologie en étoile, tous les équipements se connectent à un nœud central (switch ou hub). C'est la plus répandue."},
+  {q:"Qu'est-ce qu'un VLAN ?",o:["Un réseau sans fil","Un réseau local virtuel","Un protocole de routage","Un type de câble"],c:1,e:"Un VLAN (Virtual LAN) segmente logiquement un réseau physique en plusieurs réseaux virtuels indépendants."},
+  {q:"Quel type de câble est le plus résistant aux interférences électromagnétiques ?",o:["Câble coaxial","Paire torsadée UTP","Paire torsadée STP","Fibre optique"],c:3,e:"La fibre optique transmet la lumière et est totalement immunisée aux interférences électromagnétiques (EMI)."},
+  {q:"Qu'est-ce qu'un hub ?",o:["Un équipement couche 3 qui route","Un répéteur multi-ports diffusant à tous","Un commutateur intelligent","Un routeur sans fil"],c:1,e:"Un hub (couche 1) reçoit un signal et le réémet sur tous ses ports sans distinction — il est aujourd'hui largement remplacé par les switches."},
+  {q:"Dans une topologie en anneau, que se passe-t-il si un nœud tombe en panne (anneau simple) ?",o:["Seul ce nœud est isolé","Tout le réseau est interrompu","Les autres nœuds se reconnectent automatiquement","Le trafic est redirigé via le hub"],c:1,e:"Dans un anneau simple, la rupture d'un nœud coupe la boucle et interrompt toutes les communications. L'anneau double (FDDI) résout ce problème."},
+
+  // WIFI & RÉSEAUX SANS FIL
+  {q:"Quelle norme Wi-Fi est associée à la bande 5 GHz et peut atteindre 54 Mbps ?",o:["802.11b","802.11a","802.11g","802.11n"],c:1,e:"802.11a opère à 5 GHz avec un débit max de 54 Mbps. 802.11g opère à 2,4 GHz avec le même débit max."},
+  {q:"Quel protocole de sécurité Wi-Fi est actuellement le plus recommandé ?",o:["WEP","WPA","WPA2","WPA3"],c:3,e:"WPA3 (2018) est le protocole le plus sécurisé. WEP est obsolète et facilement cassable. WPA2 reste acceptable mais WPA3 est préféré."},
+  {q:"Que signifie SSID dans le contexte Wi-Fi ?",o:["Service Set Identifier","Secure Signal Internet Data","Station Signal ID","System Set Interface Data"],c:0,e:"SSID (Service Set Identifier) est le nom du réseau Wi-Fi diffusé par le point d'accès."},
+
+  // SÉCURITÉ RÉSEAU
+  {q:"Qu'est-ce qu'un pare-feu (firewall) ?",o:["Un antivirus réseau","Un équipement filtrant le trafic selon des règles","Un protocole de chiffrement","Un type de routeur"],c:1,e:"Un pare-feu contrôle le trafic entrant et sortant selon des règles définies, bloquant les accès non autorisés."},
+  {q:"Qu'est-ce qu'une attaque de type 'Man-in-the-Middle' ?",o:["Une attaque DDoS","Un interception de communications entre deux parties","Un virus auto-répliquant","Une attaque par force brute"],c:1,e:"Dans une attaque MITM, l'attaquant s'insère entre deux parties communicantes pour intercepter ou modifier les échanges à leur insu."},
+  {q:"Quel protocole chiffre les communications entre un navigateur et un serveur web ?",o:["HTTP","FTP","TLS/SSL","SMTP"],c:2,e:"TLS (Transport Layer Security), anciennement SSL, chiffre les communications HTTPS entre client et serveur web."},
+  {q:"Qu'est-ce qu'un VPN ?",o:["Un réseau local sans fil","Un réseau privé virtuel sécurisé","Un protocole de routage","Un type de pare-feu"],c:1,e:"Un VPN (Virtual Private Network) crée un tunnel chiffré sur un réseau public pour sécuriser les communications."},
+  {q:"Qu'est-ce qu'une attaque DDoS ?",o:["Un déni de service distribué visant à saturer un serveur","Un virus qui chiffre les données","Une attaque sur les mots de passe","Un scan de ports réseau"],c:0,e:"DDoS (Distributed Denial of Service) utilise de nombreuses machines (botnet) pour inonder un serveur de requêtes jusqu'à le rendre indisponible."},
+
+  // ROUTAGE
+  {q:"Quel protocole de routage est un protocole à état de liens (link-state) ?",o:["RIP","OSPF","EIGRP","BGP"],c:1,e:"OSPF (Open Shortest Path First) est un protocole à état de liens qui construit une carte complète de la topologie réseau."},
+  {q:"Quelle métrique utilise RIP pour choisir le meilleur chemin ?",o:["Bande passante","Délai","Nombre de sauts (hop count)","Coût"],c:2,e:"RIP (Routing Information Protocol) utilise le nombre de sauts (max 15) comme métrique. Il est simple mais limité aux petits réseaux."},
+  {q:"Qu'est-ce que la passerelle par défaut (default gateway) ?",o:["L'adresse du serveur DNS","Le routeur permettant de quitter le réseau local","L'adresse broadcast","Le premier hôte du réseau"],c:1,e:"La passerelle par défaut est l'adresse IP du routeur que les machines utilisent pour envoyer du trafic vers des réseaux externes."},
+  {q:"Qu'est-ce que le NAT ?",o:["Network Address Translation — traduit des IPs privées en IPs publiques","Network Access Technology","Node Address Table","Network Allocation Token"],c:0,e:"NAT (Network Address Translation) permet à plusieurs machines avec des IPs privées de partager une ou plusieurs IPs publiques pour accéder à Internet."},
+
+  // DNS & SERVICES
+  {q:"Quel type d'enregistrement DNS associe un nom de domaine à une adresse IPv4 ?",o:["MX","AAAA","A","CNAME"],c:2,e:"L'enregistrement de type A associe un nom de domaine à une adresse IPv4. AAAA est utilisé pour IPv6."},
+  {q:"Sur quel port le serveur DNS écoute-t-il par défaut ?",o:["53","67","25","110"],c:0,e:"DNS utilise le port 53 (UDP pour les requêtes standard, TCP pour les transferts de zone ou requêtes > 512 octets)."},
+  {q:"Quel protocole est utilisé par DHCP pour transporter ses messages ?",o:["TCP","UDP","ICMP","ARP"],c:1,e:"DHCP utilise UDP : le client envoie sur le port 68 et le serveur écoute sur le port 67. UDP est choisi car TCP nécessite une connexion préalable impossible sans IP."},
+
+  // DIVERS
+  {q:"Qu'est-ce que la bande passante (bandwidth) ?",o:["La latence d'un réseau","La quantité maximale de données transmissibles par unité de temps","Le nombre de paquets perdus","La distance maximale d'un câble"],c:1,e:"La bande passante désigne la capacité maximale de transmission d'un canal réseau, exprimée en bits par seconde (bps, Mbps, Gbps)."},
+  {q:"Qu'est-ce que la latence dans un réseau ?",o:["La vitesse maximale de transfert","Le délai de transmission d'un paquet de la source à la destination","Le taux d'erreurs réseau","La fréquence du signal"],c:1,e:"La latence (ou délai) mesure le temps mis par un paquet pour aller d'un point A à un point B. Elle est exprimée en millisecondes."},
+  {q:"Quel modèle de transmission permet d'envoyer des données dans les deux sens simultanément ?",o:["Simplex","Half-duplex","Full-duplex","Multiplex"],c:2,e:"Le full-duplex permet la transmission simultanée dans les deux sens. Le half-duplex alterne (walkie-talkie). Le simplex est unidirectionnel."},
+  {q:"Qu'est-ce que le protocole SNMP ?",o:["Simple Network Mail Protocol","Simple Network Management Protocol","Secure Network Monitoring Protocol","Standard Network Management Procedure"],c:1,e:"SNMP (Simple Network Management Protocol) permet de surveiller et gérer les équipements réseau (routeurs, switches, serveurs)."},
+  {q:"Quel est le rôle d'un proxy dans un réseau ?",o:["Attribuer des adresses IP","Servir d'intermédiaire entre clients et serveurs","Chiffrer les données","Segmenter les VLANs"],c:1,e:"Un proxy agit comme intermédiaire : il reçoit les requêtes des clients, les transmet aux serveurs et retourne les réponses. Il peut filtrer, mettre en cache et masquer les IPs."},
+  {q:"Qu'est-ce que le protocole Spanning Tree (STP) ?",o:["Un protocole de routage dynamique","Un protocole évitant les boucles dans les réseaux commutés","Un protocole de sécurité Wi-Fi","Un protocole de transfert de fichiers"],c:1,e:"STP (Spanning Tree Protocol) détecte et élimine les boucles dans les réseaux avec des switches redondants en bloquant certains ports."},
+  {q:"Qu'est-ce que le QoS (Quality of Service) ?",o:["Un protocole de sécurité","Un mécanisme priorisant certains types de trafic réseau","Un type de câblage réseau","Un algorithme de chiffrement"],c:1,e:"QoS permet de prioriser certains flux (voix, vidéo) sur un réseau pour garantir une qualité minimale de service, même en cas de congestion."},
+];
+
+let current = 0;
+let answers = new Array(questions.length).fill(null);
+let correct = 0, wrong = 0;
+
+function render() {
+  const q = questions[current];
+  const n = current + 1;
+  const pct = Math.round((n-1)/questions.length*100);
+
+  document.getElementById('progress-bar').style.width = pct+'%';
+  document.getElementById('progress-text').textContent = `Question ${n} / ${questions.length}`;
+  document.getElementById('progress-pct').textContent = pct+'%';
+  document.getElementById('q-num').textContent = `QUESTION ${String(n).padStart(2,'0')}`;
+  document.getElementById('q-text').textContent = q.q;
+
+  const optDiv = document.getElementById('options');
+  optDiv.innerHTML = '';
+  const letters = ['A','B','C','D'];
+
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span>${opt}`;
+    btn.disabled = answers[current] !== null;
+
+    if (answers[current] !== null) {
+      if (i === q.c) btn.classList.add('correct');
+      else if (i === answers[current] && answers[current] !== q.c) btn.classList.add('wrong');
+    }
+
+    btn.addEventListener('click', () => selectAnswer(i));
+    optDiv.appendChild(btn);
+  });
+
+  const exp = document.getElementById('explanation');
+  exp.textContent = '💡 ' + q.e;
+  exp.className = 'explanation' + (answers[current] !== null ? ' show' : '');
+
+  document.getElementById('sc-correct').textContent = correct;
+  document.getElementById('sc-wrong').textContent = wrong;
+  document.getElementById('sc-rem').textContent = questions.length - correct - wrong;
+
+  document.getElementById('btn-prev').style.opacity = current === 0 ? '0.3' : '1';
+  document.getElementById('btn-prev').disabled = current === 0;
+  document.getElementById('btn-next').textContent = current === questions.length-1 ? 'Voir résultats →' : 'Suivante →';
+}
+
+function selectAnswer(i) {
+  if (answers[current] !== null) return;
+  answers[current] = i;
+  if (i === questions[current].c) correct++;
+  else wrong++;
+  render();
+}
+
+function nextQ() {
+  if (current === questions.length-1) { showResult(); return; }
+  current++;
+  render();
+}
+
+function prevQ() {
+  if (current > 0) { current--; render(); }
+}
+
+function showResult() {
+  document.getElementById('quiz-section').style.display = 'none';
+  const rs = document.getElementById('result-screen');
+  rs.style.display = 'block';
+  const pct = Math.round(correct/questions.length*100);
+  document.getElementById('res-score').textContent = `${correct}/${questions.length}`;
+  document.getElementById('res-detail').textContent = `${pct}% de bonnes réponses — ${wrong} erreurs — ${questions.length-correct-wrong} sans réponse`;
+
+  let mention = '';
+  if (pct >= 90) mention = '🏆 Excellent ! Maîtrise parfaite';
+  else if (pct >= 75) mention = '🎯 Très bien ! Quelques révisions suffisent';
+  else if (pct >= 60) mention = '📚 Bien — Continuez à réviser';
+  else if (pct >= 50) mention = '⚡ Moyen — Revoyez les notions clés';
+  else mention = '🔄 Insuffisant — Reprenez les bases';
+  document.getElementById('res-mention').textContent = mention;
+}
+
+function restart() {
+  current = 0;
+  answers = new Array(questions.length).fill(null);
+  correct = 0; wrong = 0;
+  document.getElementById('quiz-section').style.display = 'block';
+  document.getElementById('result-screen').style.display = 'none';
+  render();
+}
+
+render();
+</script>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-initial">M</span>
+      <div>
+        <div class="footer-name">Miracle L.</div>
+        <div class="footer-sub">Créateur du QCM</div>
+      </div>
+    </div>
+    <div class="footer-divider"></div>
+    <a class="footer-wa" href="https://wa.me/2290190821282" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+      +229 01 90 82 12 82
+    </a>
+  </div>
+</footer>
+
+<style>
+  footer {
+    margin-top: 3rem;
+    border-top: 1px solid var(--border);
+    padding: 1.8rem 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  footer::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 1px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+  }
+
+  .footer-inner {
+    max-width: 820px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .footer-initial {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0,229,255,0.2);
+  }
+
+  .footer-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  .footer-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .footer-divider {
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+  }
+
+  .footer-wa {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    color: #25d366;
+    text-decoration: none;
+    background: rgba(37,211,102,0.08);
+    border: 1px solid rgba(37,211,102,0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 99px;
+    transition: all 0.2s ease;
+  }
+
+  .footer-wa:hover {
+    background: rgba(37,211,102,0.15);
+    border-color: rgba(37,211,102,0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(37,211,102,0.15);
+  }
+</style>
+</body>
+</html>
